@@ -1,3 +1,7 @@
+if RUBY_PLATFORM != "java"
+  raise "Only JRuby is supported"
+end
+
 Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
@@ -15,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.homepage = "https://github.com/elasticsearch/logstash-devutils"
 
   spec.add_development_dependency "rspec", "~> 2.14.0" # MIT License
+  spec.platform = "java"
   spec.add_runtime_dependency "jar-dependencies" # MIT License
   spec.add_runtime_dependency "rake" # MIT License
   spec.add_runtime_dependency "gem_publisher"  # MIT License

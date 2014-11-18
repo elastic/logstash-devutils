@@ -1,3 +1,4 @@
+raise "Only JRuby is supported at this time." unless RUBY_PLATFORM == "java"
 require "net/http"
 require "uri"
 require "digest/sha1"
@@ -150,7 +151,6 @@ end
 desc "Process any vendor files required for this plugin"
 task "vendor" => [ "vendor:files", "vendor:jars" ]
 
-
 namespace "vendor" do
   task "files" do
     # TODO(sissel): refactor the @files Rakefile ivar usage anywhere into 
@@ -175,14 +175,15 @@ namespace "vendor" do
   end
 
   task "jars" do
+    # Skip jars work on non-java platforms.
+    next unless RUBY_PLATFORM == "java"
     require 'jar_installer'
-
     # Find all gems that have jar dependencies.
     # This is notable by the Gem::Specification#requirements having an entry
     # that starts with "jar "
-    Gem::Specification.find_all.select { |x| x.requirements.any? { /^jar / } }.each do |gem|
+    Gem::Specification.find_all.select { |gem| gem.requirements.any? { /^jar / } }.each do |gem|
       puts "Fetching jar dependencies for #{gem.name}"
-      Jars::JarInstaller.new(gem).vendor_jars
+      #Jars::JarInstaller.new(gem).vendor_jars
     end
   end
 
