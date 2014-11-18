@@ -150,19 +150,23 @@ end
 desc "Process any vendor files required for this plugin"
 task "vendor" do |task, args|
 
-  @files.each do |file| 
-    download = file_fetch(file['url'], file['sha1'])
-    if download =~ /.tar.gz/
-      prefix = download.gsub('.tar.gz', '').gsub('vendor/', '')
-      untar(download) do |entry|
-        if !file['files'].nil?
-          next unless file['files'].include?(entry.full_name.gsub(prefix, ''))
-          out = entry.full_name.split("/").last
+  # TODO(sissel): refactor the @files Rakefile ivar usage anywhere into 
+  # the vendor.json stuff.
+  if @files
+    @files.each do |file| 
+      download = file_fetch(file['url'], file['sha1'])
+      if download =~ /.tar.gz/
+        prefix = download.gsub('.tar.gz', '').gsub('vendor/', '')
+        untar(download) do |entry|
+          if !file['files'].nil?
+            next unless file['files'].include?(entry.full_name.gsub(prefix, ''))
+            out = entry.full_name.split("/").last
+          end
+          File.join('vendor', out)
         end
-        File.join('vendor', out)
+      elsif download =~ /.gz/
+        ungz(download)
       end
-    elsif download =~ /.gz/
-      ungz(download)
     end
   end
 
