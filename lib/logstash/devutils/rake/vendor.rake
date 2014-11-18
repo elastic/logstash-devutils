@@ -148,25 +148,41 @@ def ungz(file)
 end
 
 desc "Process any vendor files required for this plugin"
-task "vendor" do |task, args|
+task "vendor" => [ "vendor:files", "vendor:jars" ]
 
-  # TODO(sissel): refactor the @files Rakefile ivar usage anywhere into 
-  # the vendor.json stuff.
-  if @files
-    @files.each do |file| 
-      download = file_fetch(file['url'], file['sha1'])
-      if download =~ /.tar.gz/
-        prefix = download.gsub('.tar.gz', '').gsub('vendor/', '')
-        untar(download) do |entry|
-          if !file['files'].nil?
-            next unless file['files'].include?(entry.full_name.gsub(prefix, ''))
-            out = entry.full_name.split("/").last
+
+namespace "vendor" do
+  task "files" do
+    # TODO(sissel): refactor the @files Rakefile ivar usage anywhere into 
+    # the vendor.json stuff.
+    if @files
+      @files.each do |file| 
+        download = file_fetch(file['url'], file['sha1'])
+        if download =~ /.tar.gz/
+          prefix = download.gsub('.tar.gz', '').gsub('vendor/', '')
+          untar(download) do |entry|
+            if !file['files'].nil?
+              next unless file['files'].include?(entry.full_name.gsub(prefix, ''))
+              out = entry.full_name.split("/").last
+            end
+            File.join('vendor', out)
           end
-          File.join('vendor', out)
+        elsif download =~ /.gz/
+          ungz(download)
         end
-      elsif download =~ /.gz/
-        ungz(download)
       end
+    end
+  end
+
+  task "jars" do
+    require 'jar_installer'
+
+    # Find all gems that have jar dependencies.
+    # This is notable by the Gem::Specification#requirements having an entry
+    # that starts with "jar "
+    Gem::Specification.find_all.select { |x| x.requirements.any? { /^jar / } }.each do |gem|
+      puts "Fetching jar dependencies for #{gem.name}"
+      Jars::JarInstaller.new(gem).vendor_jars
     end
   end
 
