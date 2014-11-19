@@ -21,7 +21,10 @@ end
 
 desc "Publish gem to RubyGems.org"
 task :publish_gem do |t|
-  gem_file = Dir.glob(File.expand_path('../*.gemspec',File.dirname(__FILE__))).first
+  gem_file = Dir.glob("*.gemspec").first
+  if gem_file.nil?
+    raise "Cannot find any gemspec, checked for '*.gemspec.'" 
+  end
   gem = GemPublisher.publish_if_updated(gem_file, :rubygems)
   puts "Published #{gem}" if gem
 end
