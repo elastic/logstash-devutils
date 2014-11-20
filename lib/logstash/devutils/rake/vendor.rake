@@ -183,7 +183,7 @@ namespace "vendor" do
     # that starts with "jar "
     Gem::Specification.find_all.select { |gem| gem.requirements.any? { /^jar / } }.each do |gem|
       puts "Fetching jar dependencies for #{gem.name}"
-      #Jars::JarInstaller.new(gem).vendor_jars
+      Jars::JarInstaller.new(gem).vendor_jars
     end
   end
 
