@@ -8,7 +8,6 @@ if RUBY_PLATFORM == "java"
     class CliFacade
       def execute(*arguments)
         cmd = Shellwords.join(arguments)
-        puts cmd
         Open3.popen3(cmd) do |_i, stdout, stderr, thr|
           output = [stderr.read, stdout.read].join.strip
           raise Error, output if thr.value.exitstatus > 0
