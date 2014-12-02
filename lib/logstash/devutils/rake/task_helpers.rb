@@ -1,7 +1,9 @@
-require "gem_publisher"
-require "open-uri"
-require "uri"
-require "digest"
+require 'gem_publisher'
+require 'open-uri'
+require 'uri'
+require 'digest'
+require 'zlib'
+require 'archive/tar/minitar'
 
 module TaskHelpers
 
@@ -19,34 +21,75 @@ module TaskHelpers
   def self.vendor_files files, target_path="vendor/"
     files.each do |file_manifest| 
 
-      file = fetch_file(file_manifest['file'], target_path, file_manifest['sha1'])
+      file_uri = file_manifest['file']
+      expected_sha1 = file_manifest['sha1']
 
-      if file && archive?(file)
+      file = fetch_file(file_uri, target_path, expected_sha1)
+
+      if file && (archive?(file) || compressed?(file))
         extract(file, target_path, file_manifest['extract'])
+        File.delete file
       end
     end
   end
 
   private
-  def self.fetch_file file_uri, target_path, sha1=nil
+  def self.fetch_file file_uri, target_path, sha1_uri = nil
     file_name, file_sha1 = download(file_uri, target_path)
-    validate_sha1(file_sha1, fetch_sha1(sha1)) ? file_name : false
+    validate_sha1(file_sha1, fetch_sha1(sha1_uri)) ? file_name : false
   end
 
   private
-  def self.extract(file_name, target, extract_list)
-    []
+  def self.extract file, target, extract_list = {}
+    tmp_dir = Dir.mktmpdir
+    file = decompress(file, tmp_dir) if compressed?(file)
+    if archive?(file)
+      unpack(file, tmp_dir, extract_list.keys); File.delete(file)
+      if extract_list.empty? then
+        FileUtils.cp_r("#{tmp_dir}/.", target)
+      else
+        move_files(extract_list, tmp_dir, target)
+      end
+    else # single file => move to target
+      FileUtils.cp(file, target)
+    end
+    FileUtils.remove_entry_secure tmp_dir
   end
 
   private
-  def self.archive?(file_name)
-    file_name.match(/(.tgz|.tar|.tar.gz|.gz)$/)
+  def self.move_files file_list, from, to
+    file_list.each { |src, dest| File.rename(File.join(from, src), File.join(to, dest)) }
+  end
+
+  private
+  def self.unpack archive, target = ".", extract_list = []
+    Archive::Tar::Minitar.unpack(archive, target, extract_list)
+  end
+
+  private
+  def self.decompress file_name, target = "."
+    output_file = File.join(target, File.basename(file_name)).sub(".gz", "").sub(".tgz", ".tar")
+
+    Zlib::GzipReader.open(file_name) do |gz|
+      File.open(output_file, "w") { |g| IO.copy_stream(gz, g) }
+    end
+    output_file
+  end
+
+  private
+  def self.archive? file_name
+    /\.(tgz|tar|tar\.gz)$/ === file_name
+  end
+
+  private
+  def self.compressed? file_name
+    /\.(tgz|gz|gz)$/ === file_name
   end
 
   private
   def self.validate_sha1 sha1, reference_sha1
     if reference_sha1.nil? || reference_sha1.empty?
-      Logger.warn "Skipping sha1 checking since no reference checksum was given"
+      puts "Skipping sha1 checking since no reference checksum was given"
       return false
     end
 
@@ -77,7 +120,7 @@ module TaskHelpers
   private
   def self.fetch_sha1 uri_str
 
-    return uri_str if URI(uri_str).scheme.nil? # actual sha1
+    return uri_str if URI(uri_str.to_s).scheme.nil? # actual sha1
       
     match = open(uri_str).read.match(SHA1_REGEXP)
     
