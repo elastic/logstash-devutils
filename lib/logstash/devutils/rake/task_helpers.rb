@@ -6,10 +6,9 @@ require 'zlib'
 require 'archive/tar/minitar'
 
 module TaskHelpers
-
   SHA1_REGEXP = /(\b[0-9a-f]{5,40}\b)/
 
-  def self.release gem_file
+  def self.release(gem_file)
     GemPublisher.publish_if_updated(gem_file, :rubygems)
   end
 
@@ -18,7 +17,7 @@ module TaskHelpers
   #   "sha1" : "uri:///sha1",
   #   "extract" : [ "src/data.db" ]
   # }
-  def self.vendor_files files, target_path="vendor/"
+  def self.vendor_files(files, target_path = "vendor/")
     files.each do |file_manifest| 
 
       file_uri = file_manifest['file']
@@ -34,18 +33,18 @@ module TaskHelpers
   end
 
   private
-  def self.fetch_file file_uri, target_path, sha1_uri = nil
+
+  def self.fetch_file(file_uri, target_path, sha1_uri = nil)
     file_name, file_sha1 = download(file_uri, target_path)
     validate_sha1(file_sha1, fetch_sha1(sha1_uri)) ? file_name : false
   end
 
-  private
-  def self.extract file, target, extract_list = {}
+  def self.extract(file, target, extract_list = {})
     tmp_dir = Dir.mktmpdir
     file = decompress(file, tmp_dir) if compressed?(file)
     if archive?(file)
       unpack(file, tmp_dir, extract_list.keys); File.delete(file)
-      if extract_list.empty? then
+      if extract_list.empty?
         FileUtils.cp_r("#{tmp_dir}/.", target)
       else
         move_files(extract_list, tmp_dir, target)
@@ -56,18 +55,15 @@ module TaskHelpers
     FileUtils.remove_entry_secure tmp_dir
   end
 
-  private
-  def self.move_files file_list, from, to
+  def self.move_files(file_list, from, to)
     file_list.each { |src, dest| File.rename(File.join(from, src), File.join(to, dest)) }
   end
 
-  private
-  def self.unpack archive, target = ".", extract_list = []
+  def self.unpack(archive, target = ".", extract_list = [])
     Archive::Tar::Minitar.unpack(archive, target, extract_list)
   end
 
-  private
-  def self.decompress file_name, target = "."
+  def self.decompress(file_name, target = ".")
     output_file = File.join(target, File.basename(file_name)).sub(".gz", "").sub(".tgz", ".tar")
 
     Zlib::GzipReader.open(file_name) do |gz|
@@ -76,33 +72,28 @@ module TaskHelpers
     output_file
   end
 
-  private
-  def self.archive? file_name
+  def self.archive?(file_name)
     /\.(tgz|tar|tar\.gz)$/ === file_name
   end
 
-  private
-  def self.compressed? file_name
+  def self.compressed?(file_name)
     /\.(tgz|gz|gz)$/ === file_name
   end
 
-  private
-  def self.validate_sha1 sha1, reference_sha1
+  def self.validate_sha1(sha1, reference_sha1)
     if reference_sha1.nil? || reference_sha1.empty?
       puts "Skipping sha1 checking since no reference checksum was given"
       return false
     end
 
-    if sha1 == reference_sha1 then
+    if sha1 == reference_sha1
       return true
     else
       raise Exception, "sha1 mismatch: got #{sha1} but expected #{reference_sha1}"
     end
   end
 
-  private
-  def self.download uri_str, path
-
+  def self.download(uri_str, path)
     destination = File.join(path, File.basename(URI(uri_str).path))
 
     File.open(destination, "wb") do |saved_file|
@@ -112,19 +103,16 @@ module TaskHelpers
     [destination, calc_sha1(destination)]
   end
 
-  private
-  def self.calc_sha1 file_name
+  def self.calc_sha1(file_name)
     Digest::SHA1.file(file_name).hexdigest
   end
 
-  private
-  def self.fetch_sha1 uri_str
-
+  def self.fetch_sha1(uri_str)
     return uri_str if URI(uri_str.to_s).scheme.nil? # actual sha1
       
     match = open(uri_str).read.match(SHA1_REGEXP)
     
-    if match then
+    if match
       return match[0]
     else
       raise Exception, "No sha1 found in \"#{uri_str}\", aborting.."
