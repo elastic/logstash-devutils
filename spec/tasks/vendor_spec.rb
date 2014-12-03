@@ -27,6 +27,13 @@ describe TaskHelpers do
   end
 
   describe 'vendor_files' do
+
+    let(:tmp_dir) { Dir.mktmpdir }
+
+    after do
+      FileUtils.remove_entry_secure tmp_dir
+    end
+
     it 'downloads a remote file' do
       url = 'https://somewhere/database-1.1.2.txt'
       file_content = 'content'; io = generate_io_with(file_content)
@@ -93,13 +100,8 @@ describe TaskHelpers do
           'sha1' => '738759749e8e49d984df7f00ec1d3f4cb8c2b03a'
         }
       ]
-      tmp_dir = Dir.mktmpdir
-      begin
-        expect { TaskHelpers.vendor_files(vendor_files, tmp_dir) }.to_not raise_error
-        expect(Dir.glob(File.join(tmp_dir, '*'))).to eq([File.join(tmp_dir, 'test.txt')])
-      ensure
-        FileUtils.remove_entry_secure tmp_dir
-      end
+      expect { TaskHelpers.vendor_files(vendor_files, tmp_dir) }.to_not raise_error
+      expect(Dir.glob(File.join(tmp_dir, '*'))).to eq([File.join(tmp_dir, 'test.txt')])
     end
 
     it 'unpacks archives' do
@@ -112,13 +114,8 @@ describe TaskHelpers do
           }
         }
       ]
-      tmp_dir = Dir.mktmpdir
-      begin
-        expect { TaskHelpers.vendor_files(vendor_files, tmp_dir) }.to_not raise_error
-        expect(Dir.glob(File.join(tmp_dir, '*'))).to eq([File.join(tmp_dir, 'ola.tzt')])
-      ensure
-        FileUtils.remove_entry_secure tmp_dir
-      end
+      expect { TaskHelpers.vendor_files(vendor_files, tmp_dir) }.to_not raise_error
+      expect(Dir.glob(File.join(tmp_dir, '*'))).to eq([File.join(tmp_dir, 'ola.tzt')])
     end
   end
 end
