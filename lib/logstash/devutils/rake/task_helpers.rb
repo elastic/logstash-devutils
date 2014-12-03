@@ -77,7 +77,7 @@ module TaskHelpers
   end
 
   def self.compressed?(file_name)
-    /\.(tgz|gz|gz)$/ === file_name
+    /\.(tgz|gz)$/ === file_name
   end
 
   def self.validate_sha1(sha1, reference_sha1)
