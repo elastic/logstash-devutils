@@ -22,11 +22,9 @@ if RUBY_VERSION < "1.9.2"
   raise LoadError
 end
 
-$logger = LogStash::Logger.new(STDOUT)
 if ENV["TEST_DEBUG"]
+  $logger = LogStash::Logger.new(STDOUT)
   $logger.level = :debug
-else
-  $logger.level = :error
 end
 
 puts("Using Accessor#strict_set for specs")
