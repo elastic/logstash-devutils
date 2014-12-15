@@ -23,6 +23,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "jar-dependencies" # MIT License
   spec.add_runtime_dependency "rake" # MIT License
   spec.add_runtime_dependency "gem_publisher"  # MIT License
-  spec.add_runtime_dependency "minitar" # GPL2|Ruby License
+  spec.add_runtime_dependency "file-dependencies" # Apache 2.0 License
 end
 
