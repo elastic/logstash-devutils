@@ -43,7 +43,7 @@ end
 
 RSpec.configure do |config|
   config.extend LogStashHelper
-  config.filter_run_excluding :redis => true, :socket => true, :performance => true, :elasticsearch => true, :elasticsearch_secure => true, :broken => true, :export_cypher => true, :integration => true
+  config.filter_run_excluding :redis => true, :socket => true, :performance => true, :couchdb => true, :elasticsearch => true, :elasticsearch_secure => true, :broken => true, :export_cypher => true, :integration => true
 
   # Run specs in random order to surface order dependencies. If you find an
   # order dependency and want to debug it, you can fix the order by providing
