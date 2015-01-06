@@ -1,6 +1,5 @@
 require "logstash/logging"
 require 'logstash/devutils/rspec/logstash_helpers'
-require "insist"
 
 if ENV['COVERAGE']
   require 'simplecov'

@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
   spec.name = "logstash-devutils"
-  spec.version = "0.0.6"
+  spec.version = "0.0.7"
   spec.summary = "logstash-devutils"
   spec.description = "logstash-devutils"
   spec.license = "Apache 2.0"
