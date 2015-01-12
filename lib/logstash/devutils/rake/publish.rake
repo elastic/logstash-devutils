@@ -1,4 +1,3 @@
-raise "Only JRuby is supported at this time." unless RUBY_PLATFORM == "java"
 require "gem_publisher"
 
 # gem_publisher uses Open3.capture3 to call git binary

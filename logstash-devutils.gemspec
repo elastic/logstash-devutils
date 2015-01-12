@@ -1,7 +1,3 @@
-if RUBY_PLATFORM != "java"
-  raise "Only JRuby is supported"
-end
-
 Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
@@ -19,8 +15,12 @@ Gem::Specification.new do |spec|
   spec.homepage = "https://github.com/elasticsearch/logstash-devutils"
 
   spec.add_development_dependency "rspec", "~> 2.14.0" # MIT License
-  spec.platform = "java"
-  spec.add_runtime_dependency "jar-dependencies" # MIT License
+
+  if RUBY_PLATFORM == "java"
+    spec.platform = "java"
+    spec.add_runtime_dependency "jar-dependencies" # MIT License
+  end
+
   spec.add_runtime_dependency "rake" # MIT License
   spec.add_runtime_dependency "gem_publisher"  # MIT License
   spec.add_runtime_dependency "minitar" # GPL2|Ruby License
@@ -29,6 +29,5 @@ Gem::Specification.new do |spec|
   # own, and not relying on being required by the spec helper.
   # (some plugins does it, some use insist throw spec_helper)
   spec.add_runtime_dependency "insist", "1.0.0" # (Apache 2.0 license)
-
 end
 

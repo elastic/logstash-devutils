@@ -1,4 +1,3 @@
-raise "Only JRuby is supported at this time." unless RUBY_PLATFORM == "java"
 require "net/http"
 require "uri"
 require "digest/sha1"
