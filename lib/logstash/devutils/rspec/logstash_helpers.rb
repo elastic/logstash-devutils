@@ -1,6 +1,7 @@
 require "logstash/agent"
 require "logstash/pipeline"
 require "logstash/event"
+require "logstash/json"
 
 module LogStashHelper
 
