@@ -1,7 +1,3 @@
-require "logstash/logging"
-require 'logstash/devutils/rspec/logstash_helpers'
-require "insist"
-
 if ENV['COVERAGE']
   require 'simplecov'
   require 'coveralls'
@@ -15,6 +11,10 @@ if ENV['COVERAGE']
     add_filter 'vendor/'
   end
 end
+
+require "logstash/logging"
+require 'logstash/devutils/rspec/logstash_helpers'
+require "insist"
 
 $TESTING = true
 if RUBY_VERSION < "1.9.2"
