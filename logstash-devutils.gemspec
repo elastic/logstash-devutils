@@ -21,7 +21,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 2.14.0" # MIT License
   spec.platform = "java"
   spec.add_runtime_dependency "jar-dependencies" # MIT License
-  spec.add_runtime_dependency "rake" # MIT License
+
+  # make sure this rake version is in sync with the logstash rakelib/vendor.rake rake version
+  spec.add_runtime_dependency "rake", "10.4.2" # MIT License
+
   spec.add_runtime_dependency "gem_publisher"  # MIT License
   spec.add_runtime_dependency "minitar" # GPL2|Ruby License
 
