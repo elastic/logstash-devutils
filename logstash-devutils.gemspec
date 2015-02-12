@@ -20,7 +20,9 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "rspec", "~> 2.14.0" # MIT License
   spec.platform = "java"
-  spec.add_runtime_dependency "jar-dependencies", "0.1.7" # MIT License
+
+  spec.add_development_dependency 'jar-dependencies', '0.1.7'
+  spec.add_development_dependency 'ruby-maven', '3.1.1.0.8'
 
   # make sure this rake version is in sync with the logstash rakelib/vendor.rake rake version
   # to avoid build/test rake task failing with rake version mismatch between the system ruby
