@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
   spec.name = "logstash-devutils"
-  spec.version = "0.0.8"
+  spec.version = "0.0.9"
   spec.summary = "logstash-devutils"
   spec.description = "logstash-devutils"
   spec.license = "Apache 2.0"
@@ -20,7 +20,9 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "rspec", "~> 2.14.0" # MIT License
   spec.platform = "java"
-  spec.add_runtime_dependency "jar-dependencies" # MIT License
+
+  spec.add_development_dependency 'jar-dependencies', '0.1.7'
+  spec.add_development_dependency 'ruby-maven', '3.1.1.0.8'
 
   # make sure this rake version is in sync with the logstash rakelib/vendor.rake rake version
   # to avoid build/test rake task failing with rake version mismatch between the system ruby
