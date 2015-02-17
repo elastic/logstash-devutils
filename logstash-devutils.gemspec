@@ -21,13 +21,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "rspec", "~> 2.14.0" # MIT License
   spec.platform = "java"
   spec.add_runtime_dependency "jar-dependencies" # MIT License
-
-  # make sure this rake version is in sync with the logstash rakelib/vendor.rake rake version
-  # to avoid build/test rake task failing with rake version mismatch between the system ruby
-  # and the bundler installed rake version
-  spec.add_runtime_dependency "rake", "10.4.2" # MIT License
-
-  spec.add_runtime_dependency "gem_publisher"  # MIT License
+  spec.add_runtime_dependency "rake" # MIT License
+  spec.add_runtime_dependency "gem_publisher" # MIT License
   spec.add_runtime_dependency "minitar" # GPL2|Ruby License
 
   # Should be removed as soon as the plugins are using insist by their
