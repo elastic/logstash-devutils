@@ -29,6 +29,4 @@ Gem::Specification.new do |spec|
   # own, and not relying on being required by the spec helper.
   # (some plugins does it, some use insist throw spec_helper)
   spec.add_runtime_dependency "insist", "1.0.0" # (Apache 2.0 license)
-
 end
-
