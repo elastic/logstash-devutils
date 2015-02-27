@@ -44,7 +44,7 @@ end
 
 RSpec.configure do |config|
   config.extend LogStashHelper
-  exclude_tags = { :redis => true, :socket => true, :performance => true, :couchdb => true, :elasticsearch => true, :elasticsearch_secure => true, :broken => true, :export_cypher => true, :integration => true }
+  exclude_tags = { :redis => true, :socket => true, :performance => true, :couchdb => true, :elasticsearch => true, :elasticsearch_secure => true, :export_cypher => true, :integration => true }
 
   if LogStash::Environment.windows?
     exclude_tags[:unix] = true
