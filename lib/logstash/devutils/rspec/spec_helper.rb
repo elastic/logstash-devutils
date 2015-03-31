@@ -43,6 +43,7 @@ class LogStash::Event
 end
 
 RSpec.configure do |config|
+  config.include LogStashHelper
   config.extend LogStashHelper
   exclude_tags = { :redis => true, :socket => true, :performance => true, :couchdb => true, :elasticsearch => true, :elasticsearch_secure => true, :export_cypher => true, :integration => true }
 

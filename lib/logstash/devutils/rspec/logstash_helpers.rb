@@ -1,6 +1,7 @@
 require "logstash/agent"
 require "logstash/pipeline"
 require "logstash/event"
+require "thread"
 
 module LogStashHelper
 
@@ -36,32 +37,45 @@ module LogStashHelper
         pipeline.instance_eval { @filters.each(&:register) }
 
         event.each do |e|
-          pipeline.filter(e) {|new_event| results << new_event }
+          pipeline.filter(e) {|new_event| results << new_event}
         end
 
         pipeline.flush_filters(:final => true) do |e|
           results << e unless e.cancelled?
         end
 
-        results
+        results.select{|e| !e.cancelled?}
       end
 
-      subject { results.length > 1 ? results: results.first }
+      subject { results.length > 1 ? results : results.first }
 
       it("when processed", &block)
     end
   end # def sample
 
-  def input(&block)
-    it "inputs" do
-      pipeline = LogStash::Pipeline.new(config)
-      queue = Queue.new
-      pipeline.instance_eval do
-        @output_func = lambda { |event| queue << event }
+  def input(config, &block)
+    pipeline = LogStash::Pipeline.new(config)
+    queue = Queue.new
+
+    pipeline.instance_eval do
+      # create closure to capture queue
+      @output_func = lambda { |event| queue << event }
+
+      # output_func is now a method, call closure
+      def output_func(event)
+        @output_func.call(event)
       end
-      block.call(pipeline, queue)
-      pipeline.shutdown
     end
+
+    pipeline_thread = Thread.new { pipeline.run }
+    sleep 0.1 while !pipeline.ready?
+
+    result = block.call(pipeline, queue)
+
+    pipeline.shutdown
+    pipeline_thread.join
+
+    result
   end # def input
 
   def agent(&block)
