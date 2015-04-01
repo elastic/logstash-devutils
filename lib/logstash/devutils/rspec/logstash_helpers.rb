@@ -37,12 +37,12 @@ module LogStashHelper
         pipeline.instance_eval { @filters.each(&:register) }
 
         event.each do |e|
-          pipeline.filter(e) {|new_event| results << new_event}
+          # filter call the block on all filtered events, included new events added by the filter
+          pipeline.filter(e) { |filtered_event| results << filtered_event }
         end
 
-        pipeline.flush_filters(:final => true) do |e|
-          results << e unless e.cancelled?
-        end
+        # flush makes sure to empty any buffered events in the filter
+        pipeline.flush_filters(:final => true) { |flushed_event| results << flushed_event }
 
         results.select{|e| !e.cancelled?}
       end
