@@ -44,7 +44,7 @@ module LogStashHelper
         # flush makes sure to empty any buffered events in the filter
         pipeline.flush_filters(:final => true) { |flushed_event| results << flushed_event }
 
-        results.select{|e| !e.cancelled?}
+        results.select { |e| !e.cancelled? }
       end
 
       subject { results.length > 1 ? results : results.first }
