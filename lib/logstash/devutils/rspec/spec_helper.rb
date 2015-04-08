@@ -43,7 +43,11 @@ class LogStash::Event
 end
 
 RSpec.configure do |config|
+  # for now both include and extend are required because the newly refactored "input" helper method need to be visible in a "it" block
+  # and this is only possible by calling include on LogStashHelper
+  config.include LogStashHelper
   config.extend LogStashHelper
+
   exclude_tags = { :redis => true, :socket => true, :performance => true, :couchdb => true, :elasticsearch => true, :elasticsearch_secure => true, :export_cypher => true, :integration => true }
 
   if LogStash::Environment.windows?
