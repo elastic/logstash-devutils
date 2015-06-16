@@ -1,9 +1,17 @@
 require "logstash/agent"
 require "logstash/pipeline"
 require "logstash/event"
+require "stud/try"
+require "rspec/expectations"
 require "thread"
 
 module LogStashHelper
+  DEFAULT_NUMBER_OF_TRY = 5
+  DEFAULT_EXCEPTIONS_FOR_TRY = [RSpec::Expectations::ExpectationNotMetError]
+
+  def try(number_of_try = DEFAULT_NUMBER_OF_TRY, &block)
+    Stud.try(number_of_try.times, DEFAULT_EXCEPTIONS_FOR_TRY, &block)
+  end
 
   def config(configstr)
     let(:config) { configstr }
