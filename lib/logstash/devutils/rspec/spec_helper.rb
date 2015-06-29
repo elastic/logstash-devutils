@@ -17,6 +17,10 @@ require "logstash/environment"
 require "logstash/devutils/rspec/logstash_helpers"
 require "insist"
 
+unless LogStash::Environment.const_defined?(:LOGSTASH_HOME)
+  LogStash::Environment::LOGSTASH_HOME = Dir.pwd
+end
+
 $TESTING = true
 if RUBY_VERSION < "1.9.2"
   $stderr.puts "Ruby 1.9.2 or later is required. (You are running: " + RUBY_VERSION + ")"
