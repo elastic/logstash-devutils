@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.homepage = "https://github.com/elasticsearch/logstash-devutils"
 
   spec.add_runtime_dependency "rspec", "~> 3.1.0" # MIT License
+  spec.add_runtime_dependency "rspec-wait" # MIT License
   spec.platform = "java"
   spec.add_runtime_dependency "rake" # MIT License
   spec.add_runtime_dependency "gem_publisher" # MIT License
