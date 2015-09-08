@@ -15,6 +15,7 @@ end
 require "logstash/logging"
 require "logstash/environment"
 require "logstash/devutils/rspec/logstash_helpers"
+require "logstash/devutils/rspec/cabin_helper"
 require "insist"
 
 $TESTING = true
