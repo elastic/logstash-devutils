@@ -14,7 +14,8 @@ module LogStashHelper
   end
 
   def config(configstr)
-    let(:config) { configstr }
+    @@pipeline = LogStash::Pipeline.new(configstr)
+    @@pipeline.instance_eval { @filters.each(&:register) }
   end # def config
 
   def type(default_type)
@@ -31,7 +32,6 @@ module LogStashHelper
     name = name[0..50] + "..." if name.length > 50
 
     describe "\"#{name}\"" do
-      let(:pipeline) { LogStash::Pipeline.new(config) }
       let(:event) do
         sample_event = [sample_event] unless sample_event.is_a?(Array)
         next sample_event.collect do |e|
@@ -42,15 +42,14 @@ module LogStashHelper
 
       let(:results) do
         results = []
-        pipeline.instance_eval { @filters.each(&:register) }
 
         event.each do |e|
           # filter call the block on all filtered events, included new events added by the filter
-          pipeline.filter(e) { |filtered_event| results << filtered_event }
+          @@pipeline.filter(e) { |filtered_event| results << filtered_event }
         end
 
         # flush makes sure to empty any buffered events in the filter
-        pipeline.flush_filters(:final => true) { |flushed_event| results << flushed_event }
+        @@pipeline.flush_filters(:final => true) { |flushed_event| results << flushed_event }
 
         results.select { |e| !e.cancelled? }
       end
