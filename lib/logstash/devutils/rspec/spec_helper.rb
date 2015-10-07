@@ -18,6 +18,8 @@ require "logstash/devutils/rspec/logstash_helpers"
 require "logstash/devutils/rspec/shared_examples"
 require "insist"
 
+Thread.abort_on_exception = true
+
 $TESTING = true
 if RUBY_VERSION < "1.9.2"
   $stderr.puts "Ruby 1.9.2 or later is required. (You are running: " + RUBY_VERSION + ")"
