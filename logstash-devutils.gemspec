@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
   spec.name = "logstash-devutils"
-  spec.version = "0.0.18"
+  spec.version = "0.0.19"
   spec.summary = "logstash-devutils"
   spec.description = "logstash-devutils"
   spec.license = "Apache 2.0"
@@ -31,4 +31,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "insist", "1.0.0" # (Apache 2.0 license)
   spec.add_runtime_dependency "kramdown"
   spec.add_runtime_dependency "stud", " >= 0.0.20"
+  spec.add_runtime_dependency "fivemat"
 end
