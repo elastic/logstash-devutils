@@ -12,7 +12,6 @@ if ENV['COVERAGE']
   end
 end
 
-require "logstash/logging"
 require "logstash/environment"
 require "logstash/devutils/rspec/logstash_helpers"
 require "logstash/devutils/rspec/shared_examples"
@@ -26,13 +25,9 @@ if RUBY_VERSION < "1.9.2"
   raise LoadError
 end
 
-if ENV["TEST_DEBUG"]
-  $logger = LogStash::Logger.new(STDOUT)
-  $logger.level = :debug
-end
 
 puts("Using Accessor#strict_set for specs")
-# mokey path LogStash::Event to use strict_set in tests
+# monkey path LogStash::Event to use strict_set in tests
 # ugly, I know, but this avoids adding conditionals in performance critical section
 class LogStash::Event
   alias_method :setval, :[]=
