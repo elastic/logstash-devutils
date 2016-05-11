@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
   spec.name = "logstash-devutils"
-  spec.version = "1.0.1"
+  spec.version = "1.1.0"
   spec.summary = "logstash-devutils"
   spec.description = "logstash-devutils"
   spec.license = "Apache 2.0"
@@ -18,6 +18,11 @@ Gem::Specification.new do |spec|
   spec.email = ["jls@semicomplete.com"]
   spec.homepage = "https://github.com/elasticsearch/logstash-devutils"
 
+<<<<<<< dd43627c6f8c5026a42d43b6e8d28b1cd0548842
+=======
+  spec.add_runtime_dependency "rspec", "~> 3.3.0" # MIT License
+  spec.add_runtime_dependency "rspec-wait" # MIT License
+>>>>>>> Bump rspec version to 3.4.0 for threadsafety
   spec.platform = "java"
 
   spec.add_runtime_dependency "rspec", "~> 3.0" # MIT License
