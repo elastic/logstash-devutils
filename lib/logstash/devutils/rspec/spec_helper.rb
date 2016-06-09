@@ -31,19 +31,7 @@ if ENV["TEST_DEBUG"]
   $logger.level = :debug
 end
 
-puts("Using Accessor#strict_set for specs")
-# mokey path LogStash::Event to use strict_set in tests
-# ugly, I know, but this avoids adding conditionals in performance critical section
-class LogStash::Event
-  alias_method :setval, :set
-  def set(str, value)
-    if str == TIMESTAMP && !value.is_a?(LogStash::Timestamp)
-      raise TypeError, "The field '@timestamp' must be a LogStash::Timestamp, not a #{value.class} (#{value})"
-    end
-    LogStash::Event.validate_value(value)
-    setval(str, value)
-  end
-end
+# removed the strictness check, it did not seem to catch anything
 
 RSpec.configure do |config|
   # for now both include and extend are required because the newly refactored "input" helper method need to be visible in a "it" block
