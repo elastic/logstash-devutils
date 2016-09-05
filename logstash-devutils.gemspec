@@ -37,6 +37,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "minitar" # GPL2|Ruby License
   spec.add_runtime_dependency "logstash-core-plugin-api", "~> 2.0"
 
+  # Plain codec is required for `bundle exec rspec` in plugins gem as it is input/output default codec (declared in logstash-core/{in,out}puts/base.rb)
+  spec.add_runtime_dependency "logstash-codec-plain"
+
   # Should be removed as soon as the plugins are using insist by their
   # own, and not relying on being required by the spec helper.
   # (some plugins does it, some use insist throw spec_helper)
