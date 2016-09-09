@@ -20,6 +20,12 @@ require "insist"
 
 Thread.abort_on_exception = true
 
+# set log4j configuration
+unless java.lang.System.getProperty("log4j.configurationFile")
+  log4j2_properties = "#{File.dirname(__FILE__)}/log4j2.properties"
+  LogStash::Logging::Logger::initialize(log4j2_properties)
+end
+
 $TESTING = true
 if RUBY_VERSION < "1.9.2"
   $stderr.puts "Ruby 1.9.2 or later is required. (You are running: " + RUBY_VERSION + ")"
@@ -27,8 +33,9 @@ if RUBY_VERSION < "1.9.2"
 end
 
 if ENV["TEST_DEBUG"]
-  $logger = LogStash::Logger.new(STDOUT)
-  $logger.level = :debug
+  LogStash::Logging::Logger::configure_logging("WARN")
+else
+  LogStash::Logging::Logger::configure_logging("OFF")
 end
 
 # removed the strictness check, it did not seem to catch anything
