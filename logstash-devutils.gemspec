@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
   spec.name = "logstash-devutils"
-  spec.version = "1.1.0"
+  spec.version = "1.2.0"
   spec.licenses = ["Apache License (2.0)"]
   spec.summary = "logstash-devutils"
   spec.description = "logstash-devutils"
@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "rake" # MIT License
   spec.add_runtime_dependency "gem_publisher" # MIT License
   spec.add_runtime_dependency "minitar" # GPL2|Ruby License
-  spec.add_runtime_dependency "logstash-core-plugin-api", "~> 2.0"
+  spec.add_runtime_dependency "logstash-core-plugin-api", "<= 2.99", ">= 2.0"
 
   # Should be removed as soon as the plugins are using insist by their
   # own, and not relying on being required by the spec helper.
