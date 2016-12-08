@@ -12,6 +12,7 @@ if ENV['COVERAGE']
   end
 end
 
+require "logstash-core"
 require "logstash/logging"
 require "logstash/environment"
 require "logstash/devutils/rspec/logstash_helpers"
