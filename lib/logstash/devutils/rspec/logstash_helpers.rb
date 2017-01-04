@@ -35,7 +35,8 @@ module LogStashHelper
       let(:event) do
         sample_event = [sample_event] unless sample_event.is_a?(Array)
         next sample_event.collect do |e|
-          e = { "message" => e } if e.is_a?(String)
+          e = { 'message' => e } if e.is_a?(String)
+          e['type'] ||= default_type if default_type
           next LogStash::Event.new(e)
         end
       end
