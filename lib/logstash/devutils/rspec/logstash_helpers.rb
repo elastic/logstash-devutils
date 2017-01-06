@@ -6,6 +6,11 @@ require "rspec/expectations"
 require "thread"
 
 module LogStashHelper
+  class TestPipeline < LogStash::Pipeline
+    public :filter
+    public :flush_filters
+  end
+
   DEFAULT_NUMBER_OF_TRY = 5
   DEFAULT_EXCEPTIONS_FOR_TRY = [RSpec::Expectations::ExpectationNotMetError]
 
@@ -31,7 +36,7 @@ module LogStashHelper
     name = name[0..50] + "..." if name.length > 50
 
     describe "\"#{name}\"" do
-      let(:pipeline) { LogStash::Pipeline.new(config) }
+      let(:pipeline) { TestPipeline.new(config) }
       let(:event) do
         sample_event = [sample_event] unless sample_event.is_a?(Array)
         next sample_event.collect do |e|
