@@ -60,6 +60,11 @@ module LogStashHelper
         results.select { |e| !e.cancelled? }
       end
 
+      # starting at logstash-core 5.3 an initialized pipeline need to be closed
+      after do
+        pipeline.close if pipeline.respond_to?(:close)
+      end
+
       subject { results.length > 1 ? results : results.first }
 
       it("when processed", &block)

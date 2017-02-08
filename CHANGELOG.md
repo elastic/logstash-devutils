@@ -1,3 +1,6 @@
+## 1.3.1
+ - Close pipeline after #sample helper - for compatibility with logstash-core 5.3
+
 ## 1.3.0
  - Temporary add more visibility into the pipeline to make the #sample method work
 
