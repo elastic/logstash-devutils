@@ -36,7 +36,7 @@ module LogStashHelper
     name = name[0..50] + "..." if name.length > 50
 
     describe "\"#{name}\"" do
-      let(:pipeline) { TestPipeline.new(config) }
+      let(:pipeline) { new_pipeline_from_string(config) }
       let(:event) do
         sample_event = [sample_event] unless sample_event.is_a?(Array)
         next sample_event.collect do |e|
@@ -112,11 +112,23 @@ module LogStashHelper
   def agent(&block)
 
     it("agent(#{caller[0].gsub(/ .*/, "")}) runs") do
-      pipeline = LogStash::Pipeline.new(config)
+      pipeline = new_pipeline_from_string(config)
       pipeline.run
       block.call
     end
   end # def agent
 
+  def new_pipeline_from_string(string)
+    if TestPipeline.instance_methods.include?(:pipeline_config)
+      settings = ::LogStash::SETTINGS.clone
+
+      config_part = org.logstash.common.SourceWithMetadata.new("config_string", "config_string", string)
+
+      pipeline_config = LogStash::Config::PipelineConfig.new(LogStash::Config::Source::Local, :main, config_part, settings)
+      TestPipeline.new(pipeline_config)
+    else
+      TestPipeline.new(string)
+    end
+  end
 end # module LogStash
 
