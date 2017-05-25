@@ -1,3 +1,6 @@
+## 1.3.2
+ - Make sample function with multiple pipelines - for compatibility with logstash-core 6.0
+
 ## 1.3.1
  - Close pipeline after #sample helper - for compatibility with logstash-core 5.3
 
