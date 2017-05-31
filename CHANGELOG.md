@@ -1,5 +1,9 @@
+## 1.3.3
+ - Make input function support different pipeline constructor signatures - for compatibility with logstash-core 6.0
+ - Make return of lambda used in input helpers explicit
+
 ## 1.3.2
- - Make sample function with multiple pipelines - for compatibility with logstash-core 6.0
+ - Make sample function support different pipeline constructor signatures - for compatibility with logstash-core 6.0
 
 ## 1.3.1
  - Close pipeline after #sample helper - for compatibility with logstash-core 5.3

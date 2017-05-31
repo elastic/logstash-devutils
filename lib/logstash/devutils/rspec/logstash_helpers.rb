@@ -72,7 +72,7 @@ module LogStashHelper
   end # def sample
 
   def input(config, &block)
-    pipeline = LogStash::Pipeline.new(config)
+    pipeline = new_pipeline_from_string(config)
     queue = Queue.new
 
     pipeline.instance_eval do
@@ -82,6 +82,10 @@ module LogStashHelper
       # output_func is now a method, call closure
       def output_func(event)
         @output_func.call(event)
+        # We want to return nil or [] since outputs aren't used here
+        # NOTE: In Ruby 1.9.x, Queue#<< returned nil, but in 2.x it returns the queue itself
+        # So we need to be explicit about the return
+        nil
       end
     end
 
