@@ -24,7 +24,7 @@ Thread.abort_on_exception = true
 # set log4j configuration
 unless java.lang.System.getProperty("log4j.configurationFile")
   log4j2_properties = "#{File.dirname(__FILE__)}/log4j2.properties"
-  LogStash::Logging::Logger::initialize(log4j2_properties)
+  LogStash::Logging::Logger::initialize("file:///" + log4j2_properties)
 end
 
 $TESTING = true
