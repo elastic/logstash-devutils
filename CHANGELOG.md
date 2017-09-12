@@ -1,3 +1,6 @@
+## 1.3.4
+ - Pin kramdown gem to support ruby 1.x syntax for LS 5.x
+
 ## 1.3.3
  - Make input function support different pipeline constructor signatures - for compatibility with logstash-core 6.0
  - Make return of lambda used in input helpers explicit

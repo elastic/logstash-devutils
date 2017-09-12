@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
   spec.name = "logstash-devutils"
-  spec.version = "1.3.3"
+  spec.version = "1.3.4"
   spec.licenses = ["Apache License (2.0)"]
   spec.summary = "logstash-devutils"
   spec.description = "logstash-devutils"
@@ -41,7 +41,7 @@ Gem::Specification.new do |spec|
   # own, and not relying on being required by the spec helper.
   # (some plugins does it, some use insist throw spec_helper)
   spec.add_runtime_dependency "insist", "1.0.0" # (Apache 2.0 license)
-  spec.add_runtime_dependency "kramdown"
+  spec.add_runtime_dependency "kramdown", '1.14.0'
   spec.add_runtime_dependency "stud", " >= 0.0.20"
   spec.add_runtime_dependency "fivemat"
 end
