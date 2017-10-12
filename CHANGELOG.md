@@ -1,3 +1,6 @@
+## 1.3.5
+ - Fix spec helper method `input` generating an invalid `output_func` that returned `nil` instead of an array
+
 ## 1.3.4
  - Pin kramdown gem to support ruby 1.x syntax for LS 5.x
 
