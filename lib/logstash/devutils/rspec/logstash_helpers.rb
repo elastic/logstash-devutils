@@ -85,7 +85,7 @@ module LogStashHelper
         # We want to return nil or [] since outputs aren't used here
         # NOTE: In Ruby 1.9.x, Queue#<< returned nil, but in 2.x it returns the queue itself
         # So we need to be explicit about the return
-        nil
+        []
       end
     end
 
