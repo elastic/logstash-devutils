@@ -1,3 +1,6 @@
+## 1.3.6
+ - Revert the removal (e.g. add back) of the log4j spec helper. It is still needed for 5.x builds. 
+
 ## 1.3.5
  - Fix spec helper method `input` generating an invalid `output_func` that returned `nil` instead of an array
  - Remove spec helper log4j explicit initialization and rely on logstash-core default log4j initialization
