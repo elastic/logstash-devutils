@@ -109,6 +109,10 @@ module LogStashHelper
     attr_reader :test_read_client
 
     def run_with(events)
+      if inputs&.any? # will work but might be unintended
+        config = "\n #{config_str}" if $VERBOSE
+        warn "#{self} pipeline is getting events pushed manually while having inputs: #{inputs.inspect}  #{config}"
+      end
       # TODO could we handle an generator (Enumerator) ?
       queue.write_client.push_batch events.to_a
       @test_read_client = EventTrackingQueueReadClientDelegator.new filter_queue_client
