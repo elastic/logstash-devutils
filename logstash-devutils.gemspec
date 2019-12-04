@@ -19,6 +19,8 @@ Gem::Specification.new do |spec|
 
   spec.platform = "java"
 
+  spec.required_ruby_version = '>= 2.3'
+
   # Please note that devutils is meant to be used as a developement dependency from other
   # plugins/gems. As such, devutils OWN development dependencies (any add_development_dependency)
   # will be ignored when bundling a plugin/gem which uses/depends on devutils. This is

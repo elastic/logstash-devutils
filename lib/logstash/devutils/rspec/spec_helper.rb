@@ -26,9 +26,8 @@ unless java.lang.System.getProperty("log4j.configurationFile")
 end
 
 $TESTING = true
-if RUBY_VERSION < "1.9.2"
-  $stderr.puts "Ruby 1.9.2 or later is required. (You are running: " + RUBY_VERSION + ")"
-  raise LoadError
+if RUBY_VERSION < "2.3"
+  raise LoadError.new("Ruby >= 2.3.0 or later is required. (You are running: " + RUBY_VERSION + ")")
 end
 
 if level = (ENV["TEST_DEBUG"] || ENV['LOGGER_LEVEL'])
