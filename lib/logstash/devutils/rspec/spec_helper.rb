@@ -14,9 +14,7 @@ end
 
 require "logstash-core"
 require "logstash/logging"
-require "logstash/environment"
 require "logstash/devutils/rspec/logstash_helpers"
-require "logstash/devutils/rspec/shared_examples"
 require "insist"
 
 Thread.abort_on_exception = true
@@ -47,15 +45,9 @@ RSpec.configure do |config|
   config.include LogStashHelper
   config.extend LogStashHelper
 
-  exclude_tags = { :redis => true, :socket => true, :performance => true, :couchdb => true, :elasticsearch => true, :elasticsearch_secure => true, :export_cypher => true, :integration => true }
+  config.filter_run_excluding LogStashHelper.excluded_tags
 
-  if LogStash::Environment.windows?
-    exclude_tags[:unix] = true
-  else
-    exclude_tags[:windows] = true
   end
-
-  config.filter_run_excluding exclude_tags
 
   # Run specs in random order to surface order dependencies. If you find an
   # order dependency and want to debug it, you can fix the order by providing

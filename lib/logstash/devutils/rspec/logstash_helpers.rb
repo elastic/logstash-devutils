@@ -78,7 +78,31 @@ class LogStash::JavaPipeline
 
 end
 
+require "logstash/environment"
+
 module LogStashHelper
+
+  @@excluded_tags = {
+      :integration => true,
+      :redis => true,
+      :socket => true,
+      :performance => true,
+      :couchdb => true,
+      :elasticsearch => true,
+      :elasticsearch_secure => true,
+      :export_cypher => true
+  }
+
+  if LogStash::Environment.windows?
+    @@excluded_tags[:unix] = true
+  else
+    @@excluded_tags[:windows] = true
+  end
+
+  def self.excluded_tags
+    @@excluded_tags
+  end
+
   class TestPipeline < LogStash::JavaPipeline
     public :flush_filters
 
