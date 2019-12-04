@@ -271,32 +271,23 @@ module LogStashHelper
     end
   end # def sample
 
-  def input(config, &block)
-    pipeline = new_pipeline_from_string(config)
-    queue = Queue.new
+  def input(config_string, &block)
+    config_parts = [ config_source(config_string), test_sink_output_source ]
+    pipeline = new_pipeline(config_parts)
 
-    pipeline.instance_eval do
-      # create closure to capture queue
-      @output_func = lambda { |event| queue << event }
-
-      # output_func is now a method, call closure
-      def output_func(event)
-        @output_func.call(event)
-        # We want to return nil or [] since outputs aren't used here
-        []
-      end
-    end
+    queue = pipeline.outputs.last.event_store # LogStash::Output::TestSink
 
     pipeline_thread = Thread.new { pipeline.run }
     sleep 0.01 while !pipeline.ready?
 
+    # NOTE: we used to pass a Queue here, now its a Java List/Queue collection
     result = block.call(pipeline, queue)
 
     pipeline.shutdown
     pipeline_thread.join
 
     result
-  end # def input
+  end
 
   def plugin_input(plugin, &block)
     queue = Queue.new
@@ -312,29 +303,31 @@ module LogStashHelper
   end
 
   def agent(&block)
-
     it("agent(#{caller[0].gsub(/ .*/, "")}) runs") do
       pipeline = new_pipeline_from_string(config)
-      pipeline.run # TODO
+      pipeline.run
       block.call
     end
-  end # def agent
+  end
 
   def new_pipeline_from_string(config_string, pipeline_id: :main)
-    settings = ::LogStash::SETTINGS.clone
-
-    config_parts = [ org.logstash.common.SourceWithMetadata.new("string", "config_string", config_string) ]
+    config_parts = [ config_source(config_string) ]
 
     # include a default test_sink output if no outputs given -> we're using it to track processed events
     # NOTE: a output is required with the JavaPipeline otherwise no processing happen (despite filters being defined)
     if !OUTPUT_BLOCK_RE.match(config_string)
-      current_spec_id = @__current_example_metadata&.[](:location) || 'spec-sample'
-      output_string = "output { test_sink { id => '#{current_spec_id}' } }"
-      config_parts << org.logstash.common.SourceWithMetadata.new("string", "test_sink_output", output_string)
+      config_parts << test_sink_output_source
     end
 
-    pipeline_config = LogStash::Config::PipelineConfig.new(LogStash::Config::Source::Local, pipeline_id, config_parts, settings)
+    if !INPUT_BLOCK_RE.match(config_string)
+      # NOTE: currently using manual batch to push events down the pipe, so an input isn't required
+    end
 
+    new_pipeline(config_parts, pipeline_id)
+  end
+
+  def new_pipeline(config_parts, pipeline_id = :main, settings = ::LogStash::SETTINGS.clone)
+    pipeline_config = LogStash::Config::PipelineConfig.new(LogStash::Config::Source::Local, pipeline_id, config_parts, settings)
     TestPipeline.new(pipeline_config)
   end
 
@@ -342,15 +335,33 @@ module LogStashHelper
                         LogStash::Config::Source::Local::ConfigStringLoader::OUTPUT_BLOCK_RE : /output *{/
   private_constant :OUTPUT_BLOCK_RE
 
+
+  INPUT_BLOCK_RE = defined?(LogStash::Config::Source::Local::ConfigStringLoader::INPUT_BLOCK_RE) ?
+                        LogStash::Config::Source::Local::ConfigStringLoader::INPUT_BLOCK_RE : /input *{/
+  private_constant :INPUT_BLOCK_RE
+
   private
+
+  def config_source(config_string)
+    org.logstash.common.SourceWithMetadata.new("string", "config_string", config_string)
+  end
+
+  def test_sink_output_source(id: current_spec_id)
+    output_string = "output { test_sink { id => '#{id}' } }"
+    org.logstash.common.SourceWithMetadata.new("string", "test_sink_output", output_string)
+  end
+
+  def current_spec_id
+    @__current_example_metadata&.[](:location) || 'spec-sample'
+  end
 
   if RUBY_VERSION > '2.5'
     def deprecated(msg)
-      Kernel.warn(msg, uplevel: 2)
+      Kernel.warn(msg, uplevel: 1)
     end
   else # due JRuby 9.1 (Ruby 2.3)
     def deprecated(msg)
-      loc = caller_locations[2]
+      loc = caller_locations[1]
       Kernel.warn("#{loc.path}:#{loc.lineno}: warning: #{msg}")
     end
   end
