@@ -316,18 +316,27 @@ module LogStashHelper
     end
   end # def agent
 
-  def new_pipeline_from_string(string)
-    # if TestPipeline.instance_methods.include?(:pipeline_config)
-      settings = ::LogStash::SETTINGS.clone
+  def new_pipeline_from_string(config_string, pipeline_id: :main)
+    settings = ::LogStash::SETTINGS.clone
 
-      config_part = org.logstash.common.SourceWithMetadata.new("config_string", "config_string", string)
+    config_parts = [ org.logstash.common.SourceWithMetadata.new("string", "config_string", config_string) ]
 
-      pipeline_config = LogStash::Config::PipelineConfig.new(LogStash::Config::Source::Local, :main, config_part, settings)
-      TestPipeline.new(pipeline_config)
-    # else
-    #   TestPipeline.new(string)
-    # end
+    # include a default test_sink output if no outputs given -> we're using it to track processed events
+    # NOTE: a output is required with the JavaPipeline otherwise no processing happen (despite filters being defined)
+    if !OUTPUT_BLOCK_RE.match(config_string)
+      current_spec_id = @__current_example_metadata&.[](:location) || 'spec-sample'
+      output_string = "output { test_sink { id => '#{current_spec_id}' } }"
+      config_parts << org.logstash.common.SourceWithMetadata.new("string", "test_sink_output", output_string)
+    end
+
+    pipeline_config = LogStash::Config::PipelineConfig.new(LogStash::Config::Source::Local, pipeline_id, config_parts, settings)
+
+    TestPipeline.new(pipeline_config)
   end
+
+  OUTPUT_BLOCK_RE = defined?(LogStash::Config::Source::Local::ConfigStringLoader::OUTPUT_BLOCK_RE) ?
+                        LogStash::Config::Source::Local::ConfigStringLoader::OUTPUT_BLOCK_RE : /output *{/
+  private_constant :OUTPUT_BLOCK_RE
 
   private
 

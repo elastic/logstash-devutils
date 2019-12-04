@@ -47,6 +47,8 @@ RSpec.configure do |config|
 
   config.filter_run_excluding LogStashHelper.excluded_tags
 
+  config.before(:each) do |example|
+    @__current_example_metadata = example.metadata
   end
 
   # Run specs in random order to surface order dependencies. If you find an
