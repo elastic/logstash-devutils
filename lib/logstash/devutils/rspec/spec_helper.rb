@@ -31,8 +31,11 @@ if RUBY_VERSION < "1.9.2"
   raise LoadError
 end
 
-if ENV["TEST_DEBUG"]
-  LogStash::Logging::Logger::configure_logging("WARN")
+if level = (ENV["TEST_DEBUG"] || ENV['LOGGER_LEVEL'])
+  logger, level = level.split('=') # 'logstash.filters.grok=DEBUG'
+  level, logger = logger, nil if level.nil? # only level given e.g. 'DEBUG'
+  level = org.apache.logging.log4j.Level.toLevel(level, org.apache.logging.log4j.Level::WARN)
+  LogStash::Logging::Logger::configure_logging(level.to_s, logger)
 else
   LogStash::Logging::Logger::configure_logging("OFF")
 end
