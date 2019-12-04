@@ -19,8 +19,7 @@ class LogStash::Outputs::TestSink < LogStash::Outputs::Base
 
   # @override plugin hook
   def register
-    require 'set'
-    TRACKER[self] = []
+    TRACKER[self] = java.util.concurrent.ConcurrentLinkedQueue.new
   end
 
   # @override plugin impl
@@ -41,8 +40,12 @@ class LogStash::Outputs::TestSink < LogStash::Outputs::Base
     !!@release_on_close
   end
 
+  def clear!
+    event_store.clear
+  end
+
   def event_store
-    TRACKER[self] ||= []
+    TRACKER[self] || raise("#{self} not registered; please call plugin.register before use")
   end
 
 end
