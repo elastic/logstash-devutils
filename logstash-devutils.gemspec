@@ -37,7 +37,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "rake" # MIT License
   spec.add_runtime_dependency "gem_publisher" # MIT License
   spec.add_runtime_dependency "minitar" # GPL2|Ruby License
-  spec.add_runtime_dependency "logstash-core-plugin-api", "<= 2.99", ">= 2.0"
+
+  spec.add_runtime_dependency "logstash-core", ">= 6", "< 9.0"
+  spec.add_runtime_dependency "logstash-core-plugin-api", "<= 2.99", ">= 2.1.16"
 
   # Some plugins are (still) using insist by their own, but we no longer force this dependency on others.
   #spec.add_runtime_dependency "insist" # (Apache 2.0 license)
