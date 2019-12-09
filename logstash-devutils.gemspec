@@ -1,18 +1,17 @@
-if RUBY_PLATFORM != "java"
-  raise "Only JRuby is supported"
-end
+raise "Only JRuby is supported" if RUBY_PLATFORM != "java"
 
 Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
   spec.name = "logstash-devutils"
-  spec.version = "1.3.6"
-  spec.licenses = ["Apache License (2.0)"]
-  spec.summary = "logstash-devutils"
-  spec.description = "logstash-devutils"
+  spec.version = "2.0.0"
+  spec.license = "Apache-2.0"
   spec.authors = ["Elastic"]
   spec.email = "info@elastic.co"
   spec.homepage = "http://www.elastic.co/guide/en/logstash/current/index.html"
+
+  spec.summary = %q{An assortment of tooling/libraries to make Logstash plugin development and releasing a bit easier.}
+  spec.description = %q{logstash-devutils gem is meant to be used as a development dependency from other plugins/gems.}
 
   spec.files = files
   spec.require_paths << "lib"
@@ -21,10 +20,11 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.3'
 
-  # Please note that devutils is meant to be used as a developement dependency from other
-  # plugins/gems. As such, devutils OWN development dependencies (any add_development_dependency)
-  # will be ignored when bundling a plugin/gem which uses/depends on devutils. This is
-  # why all devutils own dependencies should normally be specified as add_runtime_dependency.
+  # Please note that devutils is meant to be used as a development dependency from other plugins/gems.
+  # As such, devutils' OWN development dependencies (any add_development_dependency) will be ignored when
+  # bundling a plugin/gem which uses/depends on devutils.
+  #
+  # This is why all devutils own dependencies should normally be specified as add_runtime_dependency.
 
   # It is important to specify rspec "~> 3.0" and not "~> 3.0.0" (or any other version to the patch level)
   # otherwise the version constrain will have to be met up to the minor release version and only allow
