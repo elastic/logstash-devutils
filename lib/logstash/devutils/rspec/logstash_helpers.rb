@@ -88,20 +88,22 @@ module LogStashHelper
     end
   end # def sample
 
-  def input(config_string, &block)
+  def input(config_string, &block); require 'logstash/outputs/test_sink'
     config_parts = [ config_source(config_string), test_sink_output_source ]
+
+    # TODO unwrapping output from LogStash::OutputDelegator is cumbersome
+    instances = LogStash::Outputs::TestSink::TRACKER.keys.to_a
     pipeline = new_pipeline(config_parts)
 
-    queue = pipeline.outputs.last.event_store # LogStash::Output::TestSink
+    start_thread = pipeline.start_and_wait
 
-    pipeline_thread = Thread.new { pipeline.run }
-    sleep 0.01 while !pipeline.ready?
+    queue = (LogStash::Outputs::TestSink::TRACKER.keys.to_a - instances).first.event_store
 
     # NOTE: we used to pass a Queue here, now its a Java List/Queue collection
     result = block.call(pipeline, queue)
 
     pipeline.shutdown
-    pipeline_thread.join
+    start_thread.join if start_thread.alive?
 
     result
   end

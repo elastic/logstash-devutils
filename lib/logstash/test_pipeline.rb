@@ -20,6 +20,32 @@ module LogStash
       run
     end
 
+    def start_and_wait
+      parent_thread = Thread.current
+      @finished_execution.make_false
+      @finished_run.make_false
+
+      @thread = Thread.new do
+        begin
+          LogStash::Util.set_thread_name("pipeline.#{pipeline_id}")
+          ThreadContext.put("pipeline.id", pipeline_id)
+          run
+          @finished_run.make_true
+        rescue => e
+          close
+          parent_thread.raise(e)
+        ensure
+          @finished_execution.make_true
+        end
+      end
+
+      unless wait_until_started
+        raise "failed to start pipeline: #{self}\n with config: #{config_str.inspect}"
+      end
+
+      @thread
+    end
+
     # @override
     def worker_loop
       read_client = @test_read_client || filter_queue_client
