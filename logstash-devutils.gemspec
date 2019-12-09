@@ -39,10 +39,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "minitar" # GPL2|Ruby License
   spec.add_runtime_dependency "logstash-core-plugin-api", "<= 2.99", ">= 2.0"
 
-  # Should be removed as soon as the plugins are using insist by their
-  # own, and not relying on being required by the spec helper.
-  # (some plugins does it, some use insist throw spec_helper)
-  spec.add_runtime_dependency "insist", "1.0.0" # (Apache 2.0 license)
+  # Some plugins are (still) using insist by their own, but we no longer force this dependency on others.
+  #spec.add_runtime_dependency "insist" # (Apache 2.0 license)
   spec.add_runtime_dependency "kramdown", '1.14.0'
   spec.add_runtime_dependency "stud", " >= 0.0.20"
   spec.add_runtime_dependency "fivemat"

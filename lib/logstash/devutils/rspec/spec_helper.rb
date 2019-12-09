@@ -15,7 +15,6 @@ end
 require "logstash-core"
 require "logstash/logging"
 require "logstash/devutils/rspec/logstash_helpers"
-require "insist"
 
 Thread.abort_on_exception = true
 
