@@ -25,17 +25,19 @@ module LogStash
       @test_read_client || super
     end
 
+    java_import org.apache.logging.log4j.ThreadContext unless const_defined?(:ThreadContext)
+
     def start_and_wait
       parent_thread = Thread.current
       @finished_execution.make_false
-      @finished_run.make_false
+      @finished_run&.make_false # only since 6.5
 
       @thread = Thread.new do
         begin
           LogStash::Util.set_thread_name("pipeline.#{pipeline_id}")
           ThreadContext.put("pipeline.id", pipeline_id)
           run
-          @finished_run.make_true
+          @finished_run&.make_true
         rescue => e
           close
           parent_thread.raise(e)
