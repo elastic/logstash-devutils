@@ -1,8 +1,6 @@
 require "logstash/pipeline"
 require "logstash/java_pipeline"
 
-require "logstash/test_pipeline/pipeline_compat"
-
 module LogStash
   class TestPipeline < LogStash::JavaPipeline
     public :flush_filters
@@ -14,10 +12,17 @@ module LogStash
         config = "\n #{config_str}" if $VERBOSE
         warn "#{self} pipeline is getting events pushed manually while having inputs: #{inputs.inspect}  #{config}"
       end
-      # TODO could we handle an generator (Enumerator) ?
+      # TODO could we handle a generator (Enumerator) ?
       queue.write_client.push_batch events.to_a
-      @test_read_client = EventTrackingQueueReadClientDelegator.new filter_queue_client
+      @test_read_client = nil # to get the real deal from #filter_queue_client
+      queue_read_client = filter_queue_client
+      @test_read_client = EventTrackingQueueReadClientDelegator.new queue_read_client
       run
+    end
+
+    # @override for WorkerLoop to pick it up
+    def filter_queue_client
+      @test_read_client || super
     end
 
     def start_and_wait
@@ -44,13 +49,6 @@ module LogStash
       end
 
       @thread
-    end
-
-    # @override
-    def worker_loop
-      read_client = @test_read_client || filter_queue_client
-      WorkerLoop.new(lir_execution, read_client, @events_filtered, @events_consumed,
-                     @flushRequested, @flushing, @shutdownRequested, @drain_queue).run
     end
 
     class EventTrackingQueueReadClientDelegator
