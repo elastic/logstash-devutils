@@ -98,6 +98,11 @@ module LogStash
         @delegate.add_filtered_metrics(filteredSize)
       end
 
+      # @override
+      def set_batch_dimensions(batch_size, batch_delay)
+        @delegate.set_batch_dimensions(batch_size, batch_delay)
+      end
+
       def filtered_events(events)
         @processed_events.concat(events)
       end
