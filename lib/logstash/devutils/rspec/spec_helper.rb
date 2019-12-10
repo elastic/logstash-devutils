@@ -35,10 +35,8 @@ if level = (ENV["TEST_DEBUG"] || ENV['LOGGER_LEVEL'])
   level = org.apache.logging.log4j.Level.toLevel(level, org.apache.logging.log4j.Level::WARN)
   LogStash::Logging::Logger::configure_logging(level.to_s, logger)
 else
-  LogStash::Logging::Logger::configure_logging("OFF")
+  LogStash::Logging::Logger::configure_logging('ERROR')
 end
-
-# removed the strictness check, it did not seem to catch anything
 
 RSpec.configure do |config|
   # for now both include and extend are required because the newly refactored "input" helper method need to be visible in a "it" block
