@@ -38,7 +38,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "gem_publisher" # MIT License
   spec.add_runtime_dependency "minitar" # GPL2|Ruby License
 
-  spec.add_runtime_dependency "logstash-core", ">= 6", "< 9.0"
+  # NOTE: as long as logstash-core-plugin-api forces a fixed logstash-core version dependency
+  # we should not add it here - we indirectly enforce LS >= 6 with the Ruby >= 2.3 requirement.
+  #spec.add_runtime_dependency "logstash-core", ">= 6", "< 9.0"
   spec.add_runtime_dependency "logstash-core-plugin-api", "<= 2.99", ">= 2.1.16"
 
   # Some plugins are (still) using insist by their own, but we no longer force this dependency on others.
