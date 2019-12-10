@@ -88,8 +88,8 @@ module LogStashHelper
     end
   end # def sample
 
-  def input(config_string, &block); require 'logstash/outputs/test_sink'
-    config_parts = [ config_source(config_string), test_sink_output_source ]
+  def input(config_string, test_sink: {}, &block); require 'logstash/outputs/test_sink'
+    config_parts = [ config_source(config_string), test_sink_output_source(**test_sink) ]
 
     # TODO unwrapping output from LogStash::OutputDelegator is cumbersome
     instances = LogStash::Outputs::TestSink::TRACKER.keys.to_a
@@ -121,13 +121,15 @@ module LogStashHelper
     end
   end
 
-  def new_pipeline_from_string(config_string, pipeline_id: :main)
+  def new_pipeline_from_string(config_string, pipeline_id: :main, test_sink: {})
     config_parts = [ config_source(config_string) ]
 
     # include a default test_sink output if no outputs given -> we're using it to track processed events
     # NOTE: a output is required with the JavaPipeline otherwise no processing happen (despite filters being defined)
     if !OUTPUT_BLOCK_RE.match(config_string)
-      config_parts << test_sink_output_source
+      config_parts << test_sink_output_source(**test_sink)
+    elsif test_sink && !test_sink.empty?
+      warn "#{__method__} test_sink: #{test_sink.inspect} options have no effect as config_string has an output"
     end
 
     if !INPUT_BLOCK_RE.match(config_string)
@@ -157,8 +159,9 @@ module LogStashHelper
     org.logstash.common.SourceWithMetadata.new("string", "config_string", config_string)
   end
 
-  def test_sink_output_source(id: current_spec_id)
-    output_string = "output { test_sink { id => '#{id}' } }"
+  def test_sink_output_source(**config)
+    config = { id: current_spec_id }.merge(config).map { |k, v| "#{k} => #{v.is_a?(String) ? v.inspect : v}" }.join(' ')
+    output_string = "output { test_sink { #{config} } }" # TODO opts for performance store_events: false
     org.logstash.common.SourceWithMetadata.new("string", "test_sink_output", output_string)
   end
 
