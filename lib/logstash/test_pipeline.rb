@@ -51,8 +51,6 @@ module LogStash
       read_client = @test_read_client || filter_queue_client
       WorkerLoop.new(lir_execution, read_client, @events_filtered, @events_consumed,
                      @flushRequested, @flushing, @shutdownRequested, @drain_queue).run
-
-      super
     end
 
     class EventTrackingQueueReadClientDelegator
