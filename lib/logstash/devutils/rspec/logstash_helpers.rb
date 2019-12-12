@@ -1,15 +1,36 @@
 require "logstash/agent"
-require "logstash/pipeline"
 require "logstash/event"
+require "logstash/test_pipeline"
+
 require "stud/try"
 require "rspec/expectations"
-require "thread"
+
+require "logstash/environment"
 
 module LogStashHelper
-  class TestPipeline < LogStash::Pipeline
-    public :filter
-    public :flush_filters
+
+  @@excluded_tags = {
+      :integration => true,
+      :redis => true,
+      :socket => true,
+      :performance => true,
+      :couchdb => true,
+      :elasticsearch => true,
+      :elasticsearch_secure => true,
+      :export_cypher => true
+  }
+
+  if LogStash::Environment.windows?
+    @@excluded_tags[:unix] = true
+  else
+    @@excluded_tags[:windows] = true
   end
+
+  def self.excluded_tags
+    @@excluded_tags
+  end
+
+  TestPipeline = LogStash::TestPipeline
 
   DEFAULT_NUMBER_OF_TRY = 5
   DEFAULT_EXCEPTIONS_FOR_TRY = [RSpec::Expectations::ExpectationNotMetError]
@@ -23,12 +44,12 @@ module LogStashHelper
   end # def config
 
   def type(default_type)
-    let(:default_type) { default_type }
+    deprecated "type(#{default_type.inspect}) no longer has any effect"
   end
 
   def tags(*tags)
     let(:default_tags) { tags }
-    puts "Setting default tags: #{tags}"
+    deprecated "tags(#{tags.inspect}) - let(:default_tags) are not used"
   end
 
   def sample(sample_event, &block)
@@ -46,18 +67,14 @@ module LogStashHelper
       end
 
       let(:results) do
-        results = []
-        pipeline.instance_eval { @filters.each(&:register) }
+        pipeline.filters.each(&:register)
 
-        event.each do |e|
-          # filter call the block on all filtered events, included new events added by the filter
-          pipeline.filter(e) { |filtered_event| results << filtered_event }
-        end
+        pipeline.run_with(event)
 
         # flush makes sure to empty any buffered events in the filter
         pipeline.flush_filters(:final => true) { |flushed_event| results << flushed_event }
 
-        results.select { |e| !e.cancelled? }
+        pipeline.test_read_client.processed_events
       end
 
       # starting at logstash-core 5.3 an initialized pipeline need to be closed
@@ -71,68 +88,97 @@ module LogStashHelper
     end
   end # def sample
 
-  def input(config, &block)
-    pipeline = new_pipeline_from_string(config)
-    queue = Queue.new
+  def input(config_string, test_sink: {}, &block); require 'logstash/outputs/test_sink'
+    config_parts = [ config_source(config_string), test_sink_output_source(**test_sink) ]
 
-    pipeline.instance_eval do
-      # create closure to capture queue
-      @output_func = lambda { |event| queue << event }
+    # TODO unwrapping output from LogStash::OutputDelegator is cumbersome
+    instances = LogStash::Outputs::TestSink::TRACKER.keys.to_a
+    pipeline = new_pipeline(config_parts)
 
-      # output_func is now a method, call closure
-      def output_func(event)
-        @output_func.call(event)
-        # We want to return nil or [] since outputs aren't used here
-        # NOTE: In Ruby 1.9.x, Queue#<< returned nil, but in 2.x it returns the queue itself
-        # So we need to be explicit about the return
-        []
-      end
-    end
+    start_thread = pipeline.start_and_wait
 
-    pipeline_thread = Thread.new { pipeline.run }
-    sleep 0.1 while !pipeline.ready?
+    queue = (LogStash::Outputs::TestSink::TRACKER.keys.to_a - instances).first.event_store
 
+    # NOTE: we used to pass a Queue here, now its a Java List/Queue collection
     result = block.call(pipeline, queue)
 
     pipeline.shutdown
-    pipeline_thread.join
+    start_thread.join if start_thread.alive?
 
-    result
-  end # def input
-
-  def plugin_input(plugin, &block)
-    queue = Queue.new
-
-    input_thread = Thread.new do
-      plugin.run(queue)
-    end
-    result = block.call(queue)
-
-    plugin.do_stop
-    input_thread.join
     result
   end
 
-  def agent(&block)
+  # @deprecated
+  def plugin_input(plugin, &block)
+    raise NotImplementedError.new("#{__method__} no longer supported; please refactor")
+  end
 
+  def agent(&block)
     it("agent(#{caller[0].gsub(/ .*/, "")}) runs") do
       pipeline = new_pipeline_from_string(config)
       pipeline.run
       block.call
     end
-  end # def agent
+  end
 
-  def new_pipeline_from_string(string)
-    if TestPipeline.instance_methods.include?(:pipeline_config)
-      settings = ::LogStash::SETTINGS.clone
+  def new_pipeline_from_string(config_string, pipeline_id: :main, test_sink: {})
+    config_parts = [ config_source(config_string) ]
 
-      config_part = org.logstash.common.SourceWithMetadata.new("config_string", "config_string", string)
+    # include a default test_sink output if no outputs given -> we're using it to track processed events
+    # NOTE: a output is required with the JavaPipeline otherwise no processing happen (despite filters being defined)
+    if !OUTPUT_BLOCK_RE.match(config_string)
+      config_parts << test_sink_output_source(**test_sink)
+    elsif test_sink && !test_sink.empty?
+      warn "#{__method__} test_sink: #{test_sink.inspect} options have no effect as config_string has an output"
+    end
 
-      pipeline_config = LogStash::Config::PipelineConfig.new(LogStash::Config::Source::Local, :main, config_part, settings)
-      TestPipeline.new(pipeline_config)
-    else
-      TestPipeline.new(string)
+    if !INPUT_BLOCK_RE.match(config_string)
+      # NOTE: currently using manual batch to push events down the pipe, so an input isn't required
+    end
+
+    new_pipeline(config_parts, pipeline_id)
+  end
+
+  def new_pipeline(config_parts, pipeline_id = :main, settings = ::LogStash::SETTINGS.clone)
+    pipeline_config = LogStash::Config::PipelineConfig.new(LogStash::Config::Source::Local, pipeline_id, config_parts, settings)
+    TestPipeline.new(pipeline_config)
+  end
+
+  OUTPUT_BLOCK_RE = defined?(LogStash::Config::Source::Local::ConfigStringLoader::OUTPUT_BLOCK_RE) ?
+                        LogStash::Config::Source::Local::ConfigStringLoader::OUTPUT_BLOCK_RE : /output *{/
+  private_constant :OUTPUT_BLOCK_RE
+
+
+  INPUT_BLOCK_RE = defined?(LogStash::Config::Source::Local::ConfigStringLoader::INPUT_BLOCK_RE) ?
+                        LogStash::Config::Source::Local::ConfigStringLoader::INPUT_BLOCK_RE : /input *{/
+  private_constant :INPUT_BLOCK_RE
+
+  private
+
+  def config_source(config_string)
+    org.logstash.common.SourceWithMetadata.new("string", "config_string", config_string)
+  end
+
+  def test_sink_output_source(**config)
+    config = { id: current_spec_id }.merge(config).map { |k, v| "#{k} => #{v.is_a?(String) ? v.inspect : v}" }.join(' ')
+    output_string = "output { test_sink { #{config} } }" # TODO opts for performance store_events: false
+    org.logstash.common.SourceWithMetadata.new("string", "test_sink_output", output_string)
+  end
+
+  def current_spec_id
+    @__current_example_metadata&.[](:location) || 'spec-sample'
+  end
+
+  if RUBY_VERSION > '2.5'
+    def deprecated(msg)
+      Kernel.warn(msg, uplevel: 1)
+    end
+  else # due JRuby 9.1 (Ruby 2.3)
+    def deprecated(msg)
+      loc = caller_locations[1]
+      Kernel.warn("#{loc.path}:#{loc.lineno}: warning: #{msg}")
     end
   end
+
 end # module LogStash
 
