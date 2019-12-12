@@ -5,8 +5,6 @@ module LogStash
   class TestPipeline < LogStash::JavaPipeline
     public :flush_filters
 
-    attr_reader :test_read_client
-
     def run_with(events)
       if inputs&.any? # will work but might be unintended
         config = "\n #{config_str}" if $VERBOSE
@@ -14,15 +12,22 @@ module LogStash
       end
       # TODO could we handle a generator (Enumerator) ?
       queue.write_client.push_batch events.to_a
-      @test_read_client = nil # to get the real deal from #filter_queue_client
       queue_read_client = filter_queue_client
-      @test_read_client = EventTrackingQueueReadClientDelegator.new queue_read_client
+      # potentially handle run_with called multiple times (re-use the same instance) :
+      if queue_read_client.is_a?(EventTrackingQueueReadClientDelegator)
+        queue_read_client.reset_events!
+      else
+        # start_worker using @filter_queue_client on 6.3, since 6.4 a reader method is used
+        # to make things compatible with 6.3 we're assigning the @filter_queue_client ivar
+        @filter_queue_client = EventTrackingQueueReadClientDelegator.new queue_read_client
+      end
       run
     end
 
     # @override for WorkerLoop to pick it up
+    # @note only works since LS 6.4 (need to use tha actual ivar for 6.3)
     def filter_queue_client
-      @test_read_client || super
+      @filter_queue_client || super
     end
 
     java_import org.apache.logging.log4j.ThreadContext unless const_defined?(:ThreadContext)
@@ -105,8 +110,22 @@ module LogStash
         @delegate.set_batch_dimensions(batch_size, batch_delay)
       end
 
+      # @override
+      def close
+        @delegate.close
+      end
+
+      # @override dispatch to delegate
+      def method_missing(method, *args)
+        @delegate.public_send(method, *args)
+      end
+
       def filtered_events(events)
         @processed_events.concat(events)
+      end
+
+      def reset_events!
+        @processed_events = []
       end
 
     end

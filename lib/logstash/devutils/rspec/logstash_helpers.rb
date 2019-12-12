@@ -74,7 +74,7 @@ module LogStashHelper
         # flush makes sure to empty any buffered events in the filter
         pipeline.flush_filters(:final => true) { |flushed_event| results << flushed_event }
 
-        pipeline.test_read_client.processed_events
+        pipeline.filter_queue_client.processed_events
       end
 
       # starting at logstash-core 5.3 an initialized pipeline need to be closed
