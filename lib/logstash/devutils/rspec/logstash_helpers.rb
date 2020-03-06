@@ -88,16 +88,21 @@ module LogStashHelper
     end
   end # def sample
 
+  org.logstash.config.ir.compiler.OutputStrategyExt::SimpleAbstractOutputStrategyExt.class_eval do
+    field_reader :output # available since LS 6.3
+  end
+
   def input(config_string, test_sink: {}, &block); require 'logstash/outputs/test_sink'
     config_parts = [ config_source(config_string), test_sink_output_source(**test_sink) ]
 
-    # TODO unwrapping output from LogStash::OutputDelegator is cumbersome
-    instances = LogStash::Outputs::TestSink::TRACKER.keys.to_a
     pipeline = new_pipeline(config_parts)
 
-    start_thread = pipeline.start_and_wait
+    output_delegator = pipeline.outputs.last # LogStash::OutputDelegator
+    fail('test_sink output expected') unless output_delegator.config_name.eql?('test_sink')
+    test_sink_output = output_delegator.strategy.to_java.output
+    queue = test_sink_output.init_event_store
 
-    queue = (LogStash::Outputs::TestSink::TRACKER.keys.to_a - instances).first.event_store
+    start_thread = pipeline.start_and_wait
 
     # NOTE: we used to pass a Queue here, now its a Java List/Queue collection
     result = block.call(pipeline, queue)

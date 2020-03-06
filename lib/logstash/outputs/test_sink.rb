@@ -22,7 +22,7 @@ class LogStash::Outputs::TestSink < LogStash::Outputs::Base
 
   # @override plugin hook
   def register
-    TRACKER[self] = Queue.new(@event_poll_timeout.to_f * 1000)
+    TRACKER[self] = @_event_store || init_event_store
   end
 
   # @override plugin impl
@@ -32,7 +32,8 @@ class LogStash::Outputs::TestSink < LogStash::Outputs::Base
 
   # @override plugin hook
   def close
-    TRACKER.delete(self) if release_on_close?
+    TRACKER.delete(self)
+    @_event_store = false if release_on_close?
   end
 
   def store_events?
@@ -50,7 +51,24 @@ class LogStash::Outputs::TestSink < LogStash::Outputs::Base
 
   # @return [Queue] (enumerable) event store
   def event_store
-    TRACKER[self] || raise("#{self} not registered; please call plugin.register before use")
+    if @_event_store.nil?
+      warn("#{self} event store not initialized (call plugin.register to initialize)", caller_locations(2))
+      return init_event_store
+    elsif @_event_store.eql?(false)
+      warn("#{self} closed - event store no longer available (release_on_close => false if you need to retain events)", caller_locations(2))
+      return nil
+    end
+    @_event_store
+  end
+
+  def init_event_store
+    @_event_store = Queue.new(@event_poll_timeout.to_f * 1000)
+  end
+
+  private
+
+  def warn(msg, callstack = nil)
+    Kernel.warn("#{msg}#{callstack ? " called from #{callstack.first}" : nil}")
   end
 
   # TODO refactor to java.util.concurrent.ConcurrentLinkedQueue
