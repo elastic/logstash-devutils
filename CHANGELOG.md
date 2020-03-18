@@ -1,3 +1,6 @@
+## 2.0.2
+ - Set number of pipeline workers to 1 in helper pipelines to facilitate plugin testing
+
 ## 2.0.0
  - Reinvented helpers using Java pipeline, only LS >= 6.x (JRuby >= 9.1) is supported.
  - [BREAKING] changes:

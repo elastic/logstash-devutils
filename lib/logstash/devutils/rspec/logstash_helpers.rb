@@ -52,6 +52,12 @@ module LogStashHelper
     deprecated "tags(#{tags.inspect}) - let(:default_tags) are not used"
   end
 
+  def default_pipeline_settings(hash = {})
+    settings = ::LogStash::SETTINGS.clone
+    settings.set_value("pipeline.workers", 1)
+    settings
+  end
+
   def sample(sample_event, &block)
     name = sample_event.is_a?(String) ? sample_event : LogStash::Json.dump(sample_event)
     name = name[0..50] + "..." if name.length > 50
@@ -144,7 +150,7 @@ module LogStashHelper
     new_pipeline(config_parts, pipeline_id)
   end
 
-  def new_pipeline(config_parts, pipeline_id = :main, settings = ::LogStash::SETTINGS.clone)
+  def new_pipeline(config_parts, pipeline_id = :main, settings = default_pipeline_settings())
     pipeline_config = LogStash::Config::PipelineConfig.new(LogStash::Config::Source::Local, pipeline_id, config_parts, settings)
     TestPipeline.new(pipeline_config)
   end
