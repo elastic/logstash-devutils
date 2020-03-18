@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
   spec.name = "logstash-devutils"
-  spec.version = "2.0.1"
+  spec.version = "2.0.2"
   spec.license = "Apache-2.0"
   spec.authors = ["Elastic"]
   spec.email = "info@elastic.co"
@@ -45,4 +45,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "kramdown", '1.14.0'
   spec.add_runtime_dependency "stud", " >= 0.0.20"
   spec.add_runtime_dependency "fivemat"
+  spec.add_runtime_dependency "logstash-codec-plain"
 end
