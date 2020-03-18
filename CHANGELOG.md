@@ -1,3 +1,9 @@
+## 2.0.2
+ - Fix: add plain codec as runtime dependency for TestPipeline helper
+
+## 2.0.1
+ - Fix: unwrap output and refactor test sink (#82)
+
 ## 2.0.0
  - Reinvented helpers using Java pipeline, only LS >= 6.x (JRuby >= 9.1) is supported.
  - [BREAKING] changes:
