@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
   spec.name = "logstash-devutils"
-  spec.version = "2.0.2"
+  spec.version = "2.0.3"
   spec.license = "Apache-2.0"
   spec.authors = ["Elastic"]
   spec.email = "info@elastic.co"

@@ -151,6 +151,13 @@ module LogStash
         @delegate.to_java.filtered_size
       end
 
+      def events
+        @delegate.events.tap do |events|
+          # filters out rogue (cancelled) events
+          @event_tracker.filtered_events events
+        end
+      end
+
       # @override void merge(IRubyObject event);
       def merge(event)
         @delegate.merge(event)
