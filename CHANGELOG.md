@@ -1,3 +1,7 @@
+## 2.0.3
+ - Fix: add missing `events` method to QueuedBatchDelegator, which was causing test failures
+ after https://github.com/elastic/logstash/pull/11737 was committed.
+
 ## 2.0.2
  - Fix: add plain codec as runtime dependency for TestPipeline helper
 
