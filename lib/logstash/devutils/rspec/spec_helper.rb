@@ -29,7 +29,7 @@ if RUBY_VERSION < "2.3"
   raise LoadError.new("Ruby >= 2.3.0 or later is required. (You are running: " + RUBY_VERSION + ")")
 end
 
-if level = (ENV["TEST_DEBUG"] || ENV['LOG_LEVEL'])
+if level = (ENV['LOG_LEVEL'] || ENV['LOGGER_LEVEL'] || ENV["TEST_DEBUG"])
   logger, level = level.split('=') # 'logstash.filters.grok=DEBUG'
   level, logger = logger, nil if level.nil? # only level given e.g. 'DEBUG'
   level = org.apache.logging.log4j.Level.toLevel(level, org.apache.logging.log4j.Level::WARN)
