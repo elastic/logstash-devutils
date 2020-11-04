@@ -67,8 +67,7 @@ module LogStashHelper
       end
 
       let(:results) do
-        pipeline.filters.each(&:register)
-
+        # Java pipeline (since 6.1) registers filters from start_workers
         pipeline.run_with(event)
 
         # flush makes sure to empty any buffered events in the filter
