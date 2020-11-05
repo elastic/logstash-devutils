@@ -1,3 +1,6 @@
+## 2.0.4
+ - Fix: avoid double registering filters on `sample` spec helper
+
 ## 2.0.3
  - Fix: add missing `events` method to QueuedBatchDelegator, which was causing test failures
  after https://github.com/elastic/logstash/pull/11737 was committed.
