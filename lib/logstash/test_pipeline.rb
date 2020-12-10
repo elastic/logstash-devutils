@@ -1,4 +1,3 @@
-require "logstash/pipeline"
 require "logstash/java_pipeline"
 
 module LogStash

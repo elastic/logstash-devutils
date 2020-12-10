@@ -1,3 +1,6 @@
+## 2.1.4
+ - Remove ruby pipeline dependency
+
 ## 2.0.4
  - Fix: avoid double registering filters on `sample` spec helper
 
