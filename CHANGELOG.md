@@ -1,4 +1,4 @@
-## 2.1.4
+## 2.1.0
  - Remove ruby pipeline dependency
 
 ## 2.0.4
