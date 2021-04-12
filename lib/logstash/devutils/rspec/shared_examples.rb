@@ -1,6 +1,10 @@
 require 'rspec/wait'
 
 RSpec.shared_examples "an interruptible input plugin" do
+  # why 3? 2 is not enough, 4 is too much..
+  # a plugin that is known to be slower can override
+  let(:allowed_lag) { 3 }
+
   describe "#stop" do
     let(:queue) { SizedQueue.new(20) }
     subject { described_class.new(config) }
@@ -14,8 +18,7 @@ RSpec.shared_examples "an interruptible input plugin" do
       expect(plugin_thread).to be_alive
       # now let's actually stop the plugin
       subject.do_stop
-      # why 3? 2 is not enough, 4 is too much..
-      wait(3).for { plugin_thread }.to_not be_alive
+      wait(allowed_lag).for { plugin_thread }.to_not be_alive
     end
   end
 end
