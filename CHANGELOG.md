@@ -1,3 +1,6 @@
+## 2.2.0
+ - Add `allowed_lag` config for shared input interruptiblity spec
+
 ## 2.1.0
  - Remove ruby pipeline dependency
 
