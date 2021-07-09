@@ -1,3 +1,6 @@
+## 2.2.1
+ - Fixed `LogStashHelpers#sample` to work with pipelines whose filters add, clone, and cancel events.
+
 ## 2.2.0
  - Add `allowed_lag` config for shared input interruptiblity spec
 

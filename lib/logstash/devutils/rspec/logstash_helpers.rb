@@ -1,6 +1,7 @@
 require "logstash/agent"
 require "logstash/event"
 require "logstash/test_pipeline"
+require "logstash/outputs/test_sink"
 
 require "stud/try"
 require "rspec/expectations"
@@ -52,11 +53,30 @@ module LogStashHelper
     deprecated "tags(#{tags.inspect}) - let(:default_tags) are not used"
   end
 
-  def sample(sample_event, &block)
+  ##
+  # Creates a single-example example group in the current rspec context to validate the results of filter operations.
+  # The current group is expected to use `LogStashHelpers#config` to provide a pipeline configuration.
+  #
+  # The provided block has access to an [Array] `results`, and also sets an unnamed `subject` that is either a
+  # single `LogStash::Event` or an `[Array[LogStash::Event]]` containing at least two entries.
+  #
+  # @param sample_event [String, #to_json]
+  # @param validation_source [:output, :queue]
+  # @yield creates an example with expectations provided by the block
+  # @return [void]
+  def sample(sample_event, validation_source: :output, &block)
+    validation_sources = [:output, :queue].freeze
+    fail(ArgumentError, "Unexpected source `#{validation_source.inspect}`, expected one of #{validation_sources.inspect}") unless validation_sources.include?(validation_source)
+
     name = sample_event.is_a?(String) ? sample_event : LogStash::Json.dump(sample_event)
     name = name[0..50] + "..." if name.length > 50
 
-    describe "\"#{name}\"" do
+    describe name.inspect do
+      if validation_source == :output
+        let(:test_sink) { LogStash::Outputs::TestSink.new("release_on_close" => false, "store_events" => true) }
+        before { expect(LogStash::Outputs::TestSink).to receive(:new).and_return(test_sink) }
+      end
+
       let(:pipeline) { new_pipeline_from_string(config) }
       let(:event) do
         sample_event = [sample_event] unless sample_event.is_a?(Array)
@@ -73,7 +93,11 @@ module LogStashHelper
         # flush makes sure to empty any buffered events in the filter
         pipeline.flush_filters(:final => true) { |flushed_event| results << flushed_event }
 
-        pipeline.filter_queue_client.processed_events
+        case validation_source
+        when :queue  then pipeline.filter_queue_client.processed_events # legacy?
+        when :output then test_sink.event_store.to_a
+        else              fail NotImplementedError("validation source `#{validation_source}` not implemented.")
+        end
       end
 
       # starting at logstash-core 5.3 an initialized pipeline need to be closed
@@ -83,7 +107,7 @@ module LogStashHelper
 
       subject { results.length > 1 ? results : results.first }
 
-      it("when processed", &block)
+      it("processes events as specified", &block)
     end
   end # def sample
 
