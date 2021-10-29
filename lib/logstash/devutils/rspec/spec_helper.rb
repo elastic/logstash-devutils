@@ -38,6 +38,16 @@ else
   LogStash::Logging::Logger::configure_logging('ERROR')
 end
 
+RSpec::Matchers.define :be_a_logstash_timestamp_equivalent_to do |expected|
+  # use the Timestamp compare to avoid suffering of precision loss of time format
+  expected = LogStash::Timestamp.new(expected) unless expected.kind_of?(LogStash::Timestamp)
+  description { "be a LogStash::Timestamp equivalent to #{expected}" }
+
+  match do |actual|
+    actual.kind_of?(LogStash::Timestamp) && actual == expected
+  end
+end
+
 RSpec.configure do |config|
   # for now both include and extend are required because the newly refactored "input" helper method need to be visible in a "it" block
   # and this is only possible by calling include on LogStashHelper
@@ -57,4 +67,3 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = :random
 end
-

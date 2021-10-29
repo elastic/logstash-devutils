@@ -1,3 +1,6 @@
+## 2.3.0
+ - Introduce `be_a_logstash_timestamp_equivalent_to` RSpec matcher to compare LogStash::Timestamp [#99](https://github.com/elastic/logstash-devutils/pull/99)
+
 ## 2.2.1
  - Fixed `LogStashHelpers#sample` to work with pipelines whose filters add, clone, and cancel events.
 
@@ -25,15 +28,15 @@
  - [BREAKING] changes:
    * `plugin_input` helper no longer works - simply fails with a not implemented error
    * `type` and `tags` helpers have no effect - they will print a deprecation warning
-   * using gem **insist** is discouraged and has to be pulled in manually 
+   * using gem **insist** is discouraged and has to be pulled in manually
      (in *plugin.gemspec* `add_development_dependency 'insist'` and `require "insist"`)
    * shared examples need to be explicitly required, as they are not re-used that much
      (in spec_helper.rb `require "logstash/devutils/rspec/shared_examples"'`)
    * `input` helper now yields a Queue-like collection (with `Queue#pop` blocking semantics)
-     with a default timeout polling mechanism to guard against potential dead-locks 
+     with a default timeout polling mechanism to guard against potential dead-locks
 
 ## 1.3.6
- - Revert the removal (e.g. add back) of the log4j spec helper. It is still needed for 5.x builds. 
+ - Revert the removal (e.g. add back) of the log4j spec helper. It is still needed for 5.x builds.
 
 ## 1.3.5
  - Fix spec helper method `input` generating an invalid `output_func` that returned `nil` instead of an array
