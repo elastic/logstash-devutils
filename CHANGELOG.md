@@ -1,3 +1,6 @@
+## 2.4.0
+ - Feat: shared test (spec) task for all! [#96](https://github.com/elastic/logstash-devutils/pull/96)
+
 ## 2.3.0
  - Introduce `be_a_logstash_timestamp_equivalent_to` RSpec matcher to compare LogStash::Timestamp [#99](https://github.com/elastic/logstash-devutils/pull/99)
 
