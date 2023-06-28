@@ -1,3 +1,6 @@
+## 2.5.0
+ - Bumped kramdown dependency to "~> 2"
+
 ## 2.4.0
  - Feat: shared test (spec) task for all! [#96](https://github.com/elastic/logstash-devutils/pull/96)
 
