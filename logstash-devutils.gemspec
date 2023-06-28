@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   files = %x{git ls-files}.split("\n")
 
   spec.name = "logstash-devutils"
-  spec.version = "2.4.0"
+  spec.version = "2.5.0"
   spec.license = "Apache-2.0"
   spec.authors = ["Elastic"]
   spec.email = "info@elastic.co"
@@ -42,7 +42,7 @@ Gem::Specification.new do |spec|
 
   # Some plugins are (still) using insist by their own, but we no longer force this dependency on others.
   #spec.add_runtime_dependency "insist" # (Apache 2.0 license)
-  spec.add_runtime_dependency "kramdown", '1.14.0'
+  spec.add_runtime_dependency "kramdown", '~> 2'
   spec.add_runtime_dependency "stud", " >= 0.0.20"
   spec.add_runtime_dependency "fivemat"
   spec.add_runtime_dependency "logstash-codec-plain"
