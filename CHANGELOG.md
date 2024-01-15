@@ -1,3 +1,6 @@
+## 2.6.0
+- Moved SimpleCov configuration to the logstash repo 
+
 ## 2.5.0
  - Bumped kramdown dependency to "~> 2"
 
