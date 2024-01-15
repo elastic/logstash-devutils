@@ -1,5 +1,5 @@
 ## 2.6.0
-- Moved SimpleCov configuration to the logstash repo 
+- Removed SimpleCov configuration, as it will be moved directly to elastic/logstash [#103](https://github.com/elastic/logstash-devutils/pull/103)
 
 ## 2.5.0
  - Bumped kramdown dependency to "~> 2"
