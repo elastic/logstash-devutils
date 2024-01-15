@@ -1,17 +1,3 @@
-if ENV['COVERAGE']
-  require 'simplecov'
-  require 'coveralls'
-
-  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
-    SimpleCov::Formatter::HTMLFormatter,
-    Coveralls::SimpleCov::Formatter
-  ]
-  SimpleCov.start do
-    add_filter 'spec/'
-    add_filter 'vendor/'
-  end
-end
-
 require "logstash-core"
 require "logstash/logging"
 require "logstash/devutils/rspec/logstash_helpers"
