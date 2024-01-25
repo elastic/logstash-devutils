@@ -62,9 +62,7 @@ def download(url, output, redirect_hops = 1)
     http.request(request) do |response|
       fail "HTTP fetch failed for #{url}. #{response}" if [200, 301].include?(response.code)
       case response
-        when Net::HTTPRedirection then
-          location = response['location']
-        when Net::HTTPFound then
+        when Net::HTTPRedirection, Net::HTTPFound then
           location = response['location']
       end
 
