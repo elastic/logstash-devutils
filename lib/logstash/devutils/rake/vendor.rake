@@ -53,7 +53,7 @@ ensure
   fd.close if fd
 end
 
-def download(url, output)
+def download(url, output, redirect_hops = 1)
   uri = URI(url)
   digest = Digest::SHA1.new
   tmp = "#{output}.tmp"
@@ -61,6 +61,18 @@ def download(url, output)
     request = Net::HTTP::Get.new(uri.path)
     http.request(request) do |response|
       fail "HTTP fetch failed for #{url}. #{response}" if [200, 301].include?(response.code)
+      case response
+        when Net::HTTPRedirection, Net::HTTPFound then
+          location = response['location']
+      end
+
+      if location
+        fail "Too many redirects to follow" if redirect_hops < 0
+        puts "Follow redirect to: #{location}"
+        download(location, output, redirect_hops - 1)
+        return
+      end
+
       size = (response["content-length"].to_i || -1).to_f
       count = 0
       File.open(tmp, "w") do |fd|
