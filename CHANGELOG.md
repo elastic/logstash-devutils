@@ -1,3 +1,6 @@
+## 2.6.1
+ - Fix: updated implementation of downloading of vendored artifacts to follow HTTP redirections. [#105](https://github.com/elastic/logstash-devutils/pull/105)
+
 ## 2.6.0
 - Removed SimpleCov configuration, as it will be moved directly to elastic/logstash [#103](https://github.com/elastic/logstash-devutils/pull/103)
 
