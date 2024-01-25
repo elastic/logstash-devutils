@@ -1,3 +1,6 @@
+## 2.6.2
+ - Fix: in case of redirected HTTP downloads, return the hash code of the downloaded artifact. [#106](https://github.com/elastic/logstash-devutils/pull/106)
+
 ## 2.6.1
  - Fix: updated implementation of downloading of vendored artifacts to follow HTTP redirections. [#105](https://github.com/elastic/logstash-devutils/pull/105)
 
