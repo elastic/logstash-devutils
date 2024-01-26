@@ -69,8 +69,7 @@ def download(url, output, redirect_hops = 1)
       if location
         fail "Too many redirects to follow" if redirect_hops < 0
         puts "Follow redirect to: #{location}"
-        download(location, output, redirect_hops - 1)
-        return
+        return download(location, output, redirect_hops - 1)
       end
 
       size = (response["content-length"].to_i || -1).to_f
