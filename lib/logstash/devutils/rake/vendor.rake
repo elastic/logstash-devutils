@@ -170,9 +170,10 @@ namespace "vendor" do
       @files.each do |file| 
         download = file_fetch(file['url'], file['sha1'])
         if download =~ /.tar.gz/
-          prefix = download.gsub('.tar.gz', '').gsub('vendor/', '')
           untar(download) do |entry|
             if !file['files'].nil?
+              # extraction folder name
+              prefix = entry.full_name.split("/").first
               next unless file['files'].include?(entry.full_name.gsub(prefix, ''))
               out = entry.full_name.split("/").last
             end
