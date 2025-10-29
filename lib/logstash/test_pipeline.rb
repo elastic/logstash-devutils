@@ -64,8 +64,7 @@ module LogStash
       def initialize(delegate)
         # NOTE: can not use LogStash::MemoryReadClient#read_batch due its JavaObject wrapping
         @delegate = delegate.to_java(QueueReadClient)
-        @processed_events = []
-        @mutex = Mutex.new
+        @processed_events = Concurrent::Array.new
       end
 
       # @override QueueBatch readBatch() throws InterruptedException;
@@ -119,21 +118,15 @@ module LogStash
       end
 
       def processed_events
-        @mutex.synchronize do
-          @processed_events.dup
-        end
+        @processed_events.to_a
       end
 
       def filtered_events(events)
-        @mutex.synchronize do
-          @processed_events.concat(events)
-        end
+        @processed_events.concat(events)
       end
 
       def reset_events!
-        @mutex.synchronize do
-          @processed_events = []
-        end
+        @processed_events.clear
       end
 
     end
