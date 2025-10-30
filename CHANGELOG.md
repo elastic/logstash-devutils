@@ -1,3 +1,6 @@
+# 2.6.3
+ - Fixes the race condition may occur when multi threads access `processed_events` of the test pipeline. [#112](https://github.com/elastic/logstash-devutils/pull/112)
+
 ## 2.6.2
  - Fix: in case of redirected HTTP downloads, return the hash code of the downloaded artifact. [#106](https://github.com/elastic/logstash-devutils/pull/106)
  - Fix: changed the prefix extraction from tar.gz name to the extracted folder name. [#109](https://github.com/elastic/logstash-devutils/pull/109) 
