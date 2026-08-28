@@ -60,10 +60,11 @@ def download(url, output, redirect_hops = 1)
   Net::HTTP.start(uri.host, uri.port, :use_ssl => (uri.scheme == "https")) do |http|
     request = Net::HTTP::Get.new(uri.path)
     http.request(request) do |response|
-      fail "HTTP fetch failed for #{url}. #{response}" if [200, 301].include?(response.code)
       case response
         when Net::HTTPRedirection, Net::HTTPFound then
           location = response['location']
+        else
+          fail "HTTP fetch failed for #{url}. #{response}"  
       end
 
       if location

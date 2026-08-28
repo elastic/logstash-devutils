@@ -1,3 +1,6 @@
+# 2.6.4
+ - Fixes code that's never executed in download function [#113](https://github.com/elastic/logstash-devutils/pull/113)
+
 # 2.6.3
  - Fixes the race condition may occur when multi threads access `processed_events` of the test pipeline. [#112](https://github.com/elastic/logstash-devutils/pull/112)
 
