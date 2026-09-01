@@ -61,10 +61,12 @@ def download(url, output, redirect_hops = 1)
     request = Net::HTTP::Get.new(uri.path)
     http.request(request) do |response|
       case response
-        when Net::HTTPRedirection, Net::HTTPFound then
+        when Net::HTTPSuccess then
+          # fall through to read the body
+        when Net::HTTPRedirection then
           location = response['location']
         else
-          fail "HTTP fetch failed for #{url}. #{response}"  
+         fail "HTTP fetch failed for #{url}. #{response}" 
       end
 
       if location
